@@ -1,13 +1,16 @@
+//Studentu ivertinimai
 #include <iostream>
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <numeric>
 using std::string;
 using std::vector;
 struct studentas{
     string vardas, pavarde;
     vector<int> paz;
     int exam;
+    double rez;
     };
     
 void printas( studentas A);
@@ -34,7 +37,7 @@ int main()
       A.paz.push_back(a);
   }
   std::cout<<"Iveskite semestro Egzamino paz.: ";std::cin>>A.exam;
-  A.rez = 0,4*std::accumulate(A.paz.begin(), A.paz.end(), 0.0)/A.paz.size() + 0.6 *A.egz;
+  A.rez=0.4*std::accumulate(A.paz.begin(), A.paz.end(), 0.0)/A.paz.size() + 0.6*A.exam;
   grupe.push_back(A);
   A.pavarde.clear();
   A.vardas.clear();
@@ -42,11 +45,14 @@ int main()
   
   }
   std::cout<<"Studentu duom.: \n";
+  std::cout<<"|"<<std::left<<std::setw(15)<<"Vardas"<<"|"<<std::left<<std::setw(20)<<"Pavarde";
+  std::cout<<"|"<<std::right<<std::setw(10)<<"Gal."<<"|\n";
+  int br=15+20+10+2;
+  std::cout <<"|";for (int i=0;i<br; i++) std::cout<<"-"; std::cout<<"|\n";
+  
   for (studentas B:grupe) printas(B);
 }
 void printas( studentas A){
-    std::cout<<"|"<<std::left<<std::setw(10)<<A.vardas<<"|"<<std::left<<std::setw(10)<<A.pavarde<<"|";
-  for (int p: A.paz) std::cout<<std::right<<std::setw(3)<<p<<"|";
-  std::cout<<std::right<<std::setw(5)<<A.exam<<"|\n";
+    std::cout<<"|"<<std::left<<std::setw(15)<<A.vardas<<"|"<<std::left<<std::setw(20)<<A.pavarde;
+    std::cout<<"|"<<std::right<<std::setw(10)<<std::fixed<<std::setprecision(2)<<A.rez<<"|\n";
 }
-
