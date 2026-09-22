@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
+#include <sstream>
 
 using std::string;
 using std::vector;
@@ -24,6 +26,7 @@ struct studentas{
 };
 
 void printas( studentas A, int pasirinkimas);
+void skaiciavimas( studentas& B);
 
 int main()
 {
@@ -37,12 +40,13 @@ int main()
   cout<<"\n===== Meniu =====\n";
   cout<<"1 - Ivesti studentu pazymius ranka\n";
   cout<<"2 - Generuoti studentu pazymius atsitiktinai\n";
-  cout<<"3 - Rodyti rezultatus\n";
-  cout<<"4 - Baigti darba\n";
+  cout<<"3 - Nuskaityti is failo kursiokai.txt\n";
+  cout<<"4 - Rodyti rezultatus\n";
+  cout<<"5 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
 
-  if (meniu == 4) break;
+  if (meniu == 5) break;
 
   if (meniu ==  1 || meniu == 2)
   {
@@ -70,17 +74,7 @@ int main()
            A.exam = rand() % 10 + 1;
            cout << "Sugeneruotas egzamino pazymys: "<<A.exam<<"\n";
           }
-          vector <int> surikiuoti_paz = A.paz;
-          std::sort(surikiuoti_paz.begin(), surikiuoti_paz.end());
-          double mediana;
-          int dydis = surikiuoti_paz.size();
-          if (dydis%2==0)
-              mediana=(surikiuoti_paz[dydis/2-1] + surikiuoti_paz[dydis/2]) / 2.0;
-          else
-              mediana=surikiuoti_paz[dydis/2];
-
-          A.vid_rez=0.4*std::accumulate(A.paz.begin(), A.paz.end(), 0.0)/A.paz.size() + 0.6*A.exam;
-          A.med_rez = 0.4*mediana + 0.6*A.exam;
+          skaiciavimas(A);
           grupe.push_back(A);
           A.pavarde.clear();
           A.vardas.clear();
@@ -91,6 +85,41 @@ int main()
       }
 }
 else if (meniu == 3)
+{
+    std::ifstream failas ("kursiokai.txt");
+    if (!failas.is_open()){
+        cout << "Nepavyko atidaryti failo kursiokai.txt\n";
+        continue;
+    }
+
+    grupe.clear();
+    string eilute;
+    std::getline(failas, eilute);
+
+    while(std::getline(failas, eilute))
+    {
+        std::istringstream s(eilute);
+        studentas S;
+        s >> S.vardas >> S.pavarde;
+
+        int x;
+        vector<int> rezultatai;
+        while(s >> x)
+            rezultatai.push_back(x);
+        
+        if (rezultatai.empty()) continue;
+
+        S.exam = rezultatai.back();
+        rezultatai.pop_back();
+        S.paz = rezultatai;
+
+        skaiciavimas(S);
+        grupe.push_back(S);
+        
+    }
+    failas.close();
+}
+else if (meniu == 4)
 {
     if (grupe.empty()) {
         cout << "Studentu dar nera. Grizti prie 1 ir 2 veiksmo meniu\n";
@@ -129,7 +158,25 @@ else if (meniu == 3)
      cout << "Tokio pasirinkimo nera.\n";
  }
 }
+void skaiciavimas( studentas& B)
+{
+    if (B.paz.empty()){
+        B.vid_rez = 0.6 * B.exam;
+        B.med_rez = 0.6 * B.exam;
+        return;
+    }
+    vector <int> surikiuoti_paz = B.paz;
+    std::sort(surikiuoti_paz.begin(), surikiuoti_paz.end());
+    double mediana;
+    int dydis = surikiuoti_paz.size();
+    if (dydis%2==0)
+        mediana=(surikiuoti_paz[dydis/2-1] + surikiuoti_paz[dydis/2]) / 2.0;
+    else
+        mediana=surikiuoti_paz[dydis/2];
 
+    B.vid_rez=0.4*std::accumulate(B.paz.begin(), B.paz.end(), 0.0)/B.paz.size() + 0.6*B.exam;
+    B.med_rez = 0.4*mediana + 0.6*B.exam;
+}
 void printas( studentas A, int pasirinkimas){
     cout<<"|"<<left<<setw(15)<<A.vardas<<"|"<<left<<setw(20)<<A.pavarde;
     cout<<std::fixed<<std::setprecision(2);
@@ -143,8 +190,3 @@ void printas( studentas A, int pasirinkimas){
 
     cout<<"|\n";
 }
-
-    cout<<"|\n";
-}
-
-
