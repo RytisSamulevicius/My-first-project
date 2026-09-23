@@ -118,6 +118,10 @@ else if (meniu == 3)
         
     }
     failas.close();
+    
+    std::sort(grupe.begin(), grupe.end(), [](const studentas& a, const studentas& b) {
+        return a.pavarde < b.pavarde;
+    });
 }
 else if (meniu == 4)
 {
