@@ -32,10 +32,12 @@ bool lygintiPagalVarda(const studentas& a, const studentas& b);
 int main()
 {
   srand(time(0));
+
   vector<studentas> grupe;
   studentas A;
   int meniu;
   string failo_pavadinimas;
+
   while(true)
   {
   cout<<"\n===== Meniu =====\n";
@@ -47,7 +49,20 @@ int main()
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
 
-  if (meniu == 5) break;
+  if (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 5.\n";
+        continue;
+    }
+
+  if (meniu == 5) 
+  {
+    cout << "Programa baigia darba.\n";
+    break;
+  }
+ 
 
   if (meniu ==  1 || meniu == 2)
   {
@@ -55,34 +70,86 @@ int main()
 
       while (true)
       {
-      cout<<"Iveskite varda "; cin>>A.vardas;
-      cout<<"Iveskite pavarde "; cin>>A.pavarde;
-      while (true){
-          int n; char kl;
-          if (budas == 1){
-              cout<<"Iveskite semestro paz.: "; cin>>n;
-          } else {
-              n =rand() % 10 + 1;
-              cout << "Sugeneruotas namu darbu pazymys: "<<n<<"\n";
-          }
-          A.paz.push_back(n);
+          cout<<"Iveskite varda "; cin>>A.vardas;
+          cout<<"Iveskite pavarde "; cin>>A.pavarde;
+
+          A.paz.clear();
+
+          while (true){
+          char kl;
+
           cout<<"Ar studentas turi dar pazymiu? t/n "; cin>>kl;
-          if (kl =='n' || kl == 'N') break;
+          if (kl =='t' || kl == 'T')
+          {
+             int n;
+
+             if (budas == 1)
+             {
+                cout<<"Iveskite semestro paz.: "; cin>>n;
+                if(cin.fail() || n < 1 || n > 10) 
+                {
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    cout << "Pazymys turi buti nuo 1 iki 10.\n";
+                    continue;
+                }
+                A.paz.push_back(n);
+             }
+             else
+                {
+                    n = rand() % 10 + 1;
+                    cout << "Sugeneruotas namu darbu pazymys: "<<n<<"\n";
+                    A.paz.push_back(n);
+                }
           }
-      if (budas == 1){
-          cout<<"Iveskite semestro Egzamino paz.: ";cin>>A.exam;
-      }  else {
+        
+          else if (kl == 'n' || kl == 'N') 
+          {
+             break;
+          }
+          else 
+          {
+            cout << "Neteisingas pasirinkimas. Iveskite t arba n.\n";
+          }
+        }
+      if (budas == 1)
+      {
+          while (true) 
+          {
+              cout<<"Iveskite semestro Egzamino paz.: ";cin>>A.exam;
+              if (cin.fail() || A.exam < 1 || A.exam > 10) 
+              {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Egzamino pazymys turi buti nuo 1 iki 10.\n";
+                continue;
+              }
+              else 
+              {
+                break;
+              }
+          }  
+       }
+       else
+       {
            A.exam = rand() % 10 + 1;
-           cout << "Sugeneruotas egzamino pazymys: "<<A.exam<<"\n";
-          }
+           cout << "Sugeneruotas Egzamino pazymys: "<<A.exam<<"\n";
+       }
           skaiciavimas(A);
           grupe.push_back(A);
           A.pavarde.clear();
           A.vardas.clear();
           A.paz.clear();
           char kl;
-          cout<<"Ar turite dar studentu? t/n "; cin>>kl;
-              if (kl == 'n' || kl == 'N') break;
+          while (true)
+          {
+             cout<<"Ar turite dar studentu? t/n "; cin>>kl;
+              if (kl == 't' || kl == 'T') break;
+                else if (kl == 'n' || kl == 'N') break;
+                else cout << "Neteisingas pasirinkimas. Iveskite t arba n.\n";
+          }
+          if (kl == 'n' || kl == 'N') break;
+         
       }
 }
 else if (meniu == 3)
@@ -99,7 +166,6 @@ else if (meniu == 3)
     }
 
     grupe.clear();
-    grupe.reserve(1000000); // Rezervuojame vietos vektoriui, kad isvengtume daug kopijavimo
     string eilute;
     std::getline(failas, eilute);
 
@@ -109,11 +175,22 @@ else if (meniu == 3)
         studentas S;
         s >> S.vardas >> S.pavarde;
 
-        int x;
         vector<int> rezultatai;
+
+        string x;
+
         while(s >> x)
-            rezultatai.push_back(x);
-        
+        {
+            if(x != "1" && x != "2" && x != "3" && x != "4" && 
+                x != "5" && x != "6" && x != "7" && x != "8" &&
+                x != "9" && x != "10")
+             {
+                cout << "Klaida faile: " << eilute << "'\n";
+                rezultatai.clear();
+                break;
+             }
+            rezultatai.push_back(std::stoi(x));
+        }
         if (rezultatai.empty()) continue;
 
         S.exam = rezultatai.back();
@@ -122,16 +199,14 @@ else if (meniu == 3)
 
         skaiciavimas(S);
 
-        S.paz.clear();
-        S.paz.shrink_to_fit(); 
-        
         grupe.push_back(std::move(S));
         
     }
     failas.close();
 
     std::sort(grupe.begin(), grupe.end(), lygintiPagalVarda);
-}
+  }
+
 else if (meniu == 4)
 {
     if (grupe.empty()) {
@@ -188,30 +263,51 @@ else if (meniu == 4)
 string pasirinktiFaila()
 {
     int pasirinkimas;
-    cout << "\n -----Pasirinkite faila:-----\n";
-    cout << "1 -kursiokai.txt\n";
-    cout << "2 - studentai10000.txt\n";
-    cout << "3 - studentai100000.txt\n";
-    cout << "4 - studentai1000000.txt\n";
-    cout << "0 - atsaukti\n";
-    cout << "Pasirinkimas: ";
-    cin >> pasirinkimas;
 
-    switch (pasirinkimas) {
-        case 1:
-            return "kursiokai.txt";
-        case 2:
-            return "studentai10000.txt";
-        case 3:
-            return "studentai100000.txt";
-        case 4:
-            return "studentai1000000.txt";
-        case 0:
-            return "";
-        default:
-            cout << "Neteisingas pasirinkimas.\n";
-            return "";
-    }
+    while (true)
+    {
+        cout << "\n -----Pasirinkite faila:-----\n";
+        cout << "1 - kursiokai.txt\n";
+        cout << "2 - studentai10000.txt\n";
+        cout << "3 - studentai100000.txt\n";
+        cout << "4 - studentai1000000.txt\n";
+        cout << "5 - Iveskite failo pavadinima paciam\n";
+        cout << "0 - atsaukti\n";
+        cout << "Pasirinkimas: ";
+        cin >> pasirinkimas;
+    
+    
+        if (cin.fail()) 
+        {
+           cin.clear();
+           cin.ignore(10000, '\n');
+           cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 0 iki 5.\n";
+           continue;
+        }
+
+        switch (pasirinkimas)
+         {
+            case 1:
+                return "kursiokai.txt";
+            case 2:
+                return "studentai10000.txt";
+            case 3:
+                return "studentai100000.txt";
+            case 4:
+                return "studentai1000000.txt";
+            case 5:
+            {
+                string failo_pavadinimas;
+                cout << "Iveskite failo pavadinima: ";
+                cin >> failo_pavadinimas;
+                return failo_pavadinimas;
+            }
+            case 0:
+                return "";
+            default:
+                cout << "Neteisingas pasirinkimas. Pasirinkite nuo 0 iki 5.\n";
+         }
+    }    
 }
 void skaiciavimas( studentas& B)
 {
