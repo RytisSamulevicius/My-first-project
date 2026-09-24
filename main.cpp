@@ -9,6 +9,7 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 using std::string;
 using std::vector;
@@ -24,23 +25,23 @@ struct studentas{
     int exam;
     double vid_rez, med_rez;
 };
-
-void printas( studentas A, int pasirinkimas);
+string pasirinktiFaila();
+void printas(const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde);
 void skaiciavimas( studentas& B);
-
+bool lygintiPagalVarda(const studentas& a, const studentas& b);
 int main()
 {
   srand(time(0));
   vector<studentas> grupe;
   studentas A;
   int meniu;
-
+  string failo_pavadinimas;
   while(true)
   {
   cout<<"\n===== Meniu =====\n";
   cout<<"1 - Ivesti studentu pazymius ranka\n";
   cout<<"2 - Generuoti studentu pazymius atsitiktinai\n";
-  cout<<"3 - Nuskaityti is failo kursiokai.txt\n";
+  cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
   cout<<"5 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
@@ -86,13 +87,19 @@ int main()
 }
 else if (meniu == 3)
 {
-    std::ifstream failas ("kursiokai.txt");
+    failo_pavadinimas = pasirinktiFaila();
+    if (failo_pavadinimas.empty()) {
+        cout << "Failas nerastas. Grizti prie meniu.\n";
+        continue;
+    }
+    std::ifstream failas (failo_pavadinimas);
     if (!failas.is_open()){
-        cout << "Nepavyko atidaryti failo kursiokai.txt\n";
+        cout << "Nepavyko atidaryti failo " << failo_pavadinimas << "\n";
         continue;
     }
 
     grupe.clear();
+    grupe.reserve(1000000); // Rezervuojame vietos vektoriui, kad isvengtume daug kopijavimo
     string eilute;
     std::getline(failas, eilute);
 
@@ -114,14 +121,16 @@ else if (meniu == 3)
         S.paz = rezultatai;
 
         skaiciavimas(S);
-        grupe.push_back(S);
+
+        S.paz.clear();
+        S.paz.shrink_to_fit(); 
+        
+        grupe.push_back(std::move(S));
         
     }
     failas.close();
-    
-    std::sort(grupe.begin(), grupe.end(), [](const studentas& a, const studentas& b) {
-        return a.pavarde < b.pavarde;
-    });
+
+    std::sort(grupe.begin(), grupe.end(), lygintiPagalVarda);
 }
 else if (meniu == 4)
 {
@@ -136,8 +145,22 @@ else if (meniu == 4)
     cout<<"Pasirinkimas: ";
     cin >> pasirinkimas;
 
+     if (pasirinkimas != 1 && pasirinkimas != 2 && pasirinkimas != 3) {
+        cout << "Neteisingas pasirinkimas.\n";
+        continue;
+    }
+
+    size_t max_vardas = string("Vardas").size();
+    size_t max_pavarde = string("Pavarde").size();
+    for (const auto& s: grupe) {
+        max_vardas = std::max(max_vardas, s.vardas.size());
+        max_pavarde = std::max(max_pavarde, s.pavarde.size());
+    }
+    int w_vardas = static_cast<int>(max_vardas) + 2;
+    int w_pavarde = static_cast<int>(max_pavarde) + 2;
+
     cout<<"\nStudentu duom.: \n";
-    cout<<"|"<<left<<setw(15)<<"Vardas"<<"|"<<left<<setw(20)<<"Pavarde";
+    cout<<"|"<<left<<setw(w_vardas)<<"Vardas"<<"|"<<left<<setw(w_pavarde)<<"Pavarde";
     if (pasirinkimas==1)
         cout<<"|"<<right<<setw(10)<<"Gal.(vid)";
     else if (pasirinkimas==2)
@@ -146,8 +169,8 @@ else if (meniu == 4)
         cout<<"|"<<right<<setw(10)<<"Gal.(vid)"<<"|"<<right<<setw(10)<<"Gal.(med)";
     cout<<"|\n";
 
-    int br=15+20+10+3;
-    int br1=15+20+10+10+4;
+    int br = w_vardas + w_pavarde + 10 + 3;
+    int br1= w_vardas + w_pavarde + 10 + 10 + 4;
 
     if (pasirinkimas==1 || pasirinkimas==2) {
         for (int i=0;i<br;i++) cout<<"-";
@@ -156,11 +179,39 @@ else if (meniu == 4)
     }
     cout<<"|\n";
 
-    for(studentas B:grupe) printas(B, pasirinkimas);
+    for(const studentas& B:grupe) printas(B, pasirinkimas, w_vardas, w_pavarde);
  }
  else
      cout << "Tokio pasirinkimo nera.\n";
  }
+}
+string pasirinktiFaila()
+{
+    int pasirinkimas;
+    cout << "\n -----Pasirinkite faila:-----\n";
+    cout << "1 -kursiokai.txt\n";
+    cout << "2 - studentai10000.txt\n";
+    cout << "3 - studentai100000.txt\n";
+    cout << "4 - studentai1000000.txt\n";
+    cout << "0 - atsaukti\n";
+    cout << "Pasirinkimas: ";
+    cin >> pasirinkimas;
+
+    switch (pasirinkimas) {
+        case 1:
+            return "kursiokai.txt";
+        case 2:
+            return "studentai10000.txt";
+        case 3:
+            return "studentai100000.txt";
+        case 4:
+            return "studentai1000000.txt";
+        case 0:
+            return "";
+        default:
+            cout << "Neteisingas pasirinkimas.\n";
+            return "";
+    }
 }
 void skaiciavimas( studentas& B)
 {
@@ -181,10 +232,16 @@ void skaiciavimas( studentas& B)
     B.vid_rez=0.4*std::accumulate(B.paz.begin(), B.paz.end(), 0.0)/B.paz.size() + 0.6*B.exam;
     B.med_rez = 0.4*mediana + 0.6*B.exam;
 }
-void printas( studentas A, int pasirinkimas){
-    cout<<"|"<<left<<setw(15)<<A.vardas<<"|"<<left<<setw(20)<<A.pavarde;
-    cout<<std::fixed<<std::setprecision(2);
+bool lygintiPagalVarda(const studentas& a, const studentas& b)
+{
+    int nrA = std::stoi(a.vardas.substr(6));
+    int nrB = std::stoi(b.vardas.substr(6));
 
+    return nrA < nrB;
+}
+void printas( const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde){
+    cout<<"|"<<left<<setw(w_vardas)<<A.vardas<<"|"<<left<<setw(w_pavarde)<<A.pavarde;
+    cout<<std::fixed<<std::setprecision(2);
     if (pasirinkimas==1)
         cout<<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.vid_rez;
     else if (pasirinkimas == 2)
