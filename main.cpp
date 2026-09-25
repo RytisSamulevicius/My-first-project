@@ -26,7 +26,7 @@ struct studentas{
     double vid_rez, med_rez;
 };
 string pasirinktiFaila();
-void printas(const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde);
+void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde);
 void skaiciavimas( studentas& B);
 bool lygintiPagalVarda(const studentas& a, const studentas& b);
 int main()
@@ -171,25 +171,28 @@ else if (meniu == 3)
 
     while(std::getline(failas, eilute))
     {
-        std::istringstream s(eilute);
+        std::stringstream s(eilute);
         studentas S;
         s >> S.vardas >> S.pavarde;
 
         vector<int> rezultatai;
 
-        string x;
+        int x;
 
         while(s >> x)
         {
-            if(x != "1" && x != "2" && x != "3" && x != "4" && 
-                x != "5" && x != "6" && x != "7" && x != "8" &&
-                x != "9" && x != "10")
+            if(x < 1 || x > 10)
              {
                 cout << "Klaida faile: " << eilute << "'\n";
                 rezultatai.clear();
                 break;
              }
-            rezultatai.push_back(std::stoi(x));
+            rezultatai.push_back(x);
+        }
+        if (!s.eof())
+        {
+            cout << "Klaida faile: " << eilute << "\n";
+            continue;
         }
         if (rezultatai.empty()) continue;
 
@@ -233,32 +236,43 @@ else if (meniu == 4)
     }
     int w_vardas = static_cast<int>(max_vardas) + 2;
     int w_pavarde = static_cast<int>(max_pavarde) + 2;
-
-    cout<<"\nStudentu duom.: \n";
-    cout<<"|"<<left<<setw(w_vardas)<<"Vardas"<<"|"<<left<<setw(w_pavarde)<<"Pavarde";
+    
+    std::ofstream rezultatufailas("rezultatai.txt");
+    if (!rezultatufailas.is_open()) {
+        cout << "Nepavyko sukurti rezultatai.txt failo.\n";
+        continue;
+    }
+    rezultatufailas<<"\nStudentu duom.: \n";
+    rezultatufailas<<"|"<<left<<setw(w_vardas)<<"Vardas"<<"|"<<left<<setw(w_pavarde)<<"Pavarde";
     if (pasirinkimas==1)
-        cout<<"|"<<right<<setw(10)<<"Gal.(vid)";
+        rezultatufailas<<"|"<<right<<setw(10)<<"Gal.(vid)";
     else if (pasirinkimas==2)
-        cout<<"|"<<right<<setw(10)<<"Gal.(med)";
+        rezultatufailas<<"|"<<right<<setw(10)<<"Gal.(med)";
     else
-        cout<<"|"<<right<<setw(10)<<"Gal.(vid)"<<"|"<<right<<setw(10)<<"Gal.(med)";
-    cout<<"|\n";
+        rezultatufailas<<"|"<<right<<setw(10)<<"Gal.(vid)"<<"|"<<right<<setw(10)<<"Gal.(med)";
+    rezultatufailas<<"|\n";
 
     int br = w_vardas + w_pavarde + 10 + 3;
     int br1= w_vardas + w_pavarde + 10 + 10 + 4;
 
     if (pasirinkimas==1 || pasirinkimas==2) {
-        for (int i=0;i<br;i++) cout<<"-";
+        for (int i=0;i<br;i++) rezultatufailas<<"-";
     } else {
-         for (int i=0;i<br1;i++) cout<<"-";
+         for (int i=0;i<br1;i++) rezultatufailas<<"-";
     }
-    cout<<"|\n";
+    rezultatufailas<<"|\n";
 
-    for(const studentas& B:grupe) printas(B, pasirinkimas, w_vardas, w_pavarde);
- }
- else
-     cout << "Tokio pasirinkimo nera.\n";
- }
+    for(const studentas& B:grupe) printas(rezultatufailas, B, pasirinkimas, w_vardas, w_pavarde);
+    rezultatufailas.close();
+    cout << "Rezultatai issaugoti faile rezultatai.txt\n";
+   }
+   else
+   {
+      cout << "Tokio pasirinkimo nera.\n";
+   } 
+  }
+  return 0;
+
 }
 string pasirinktiFaila()
 {
@@ -330,20 +344,17 @@ void skaiciavimas( studentas& B)
 }
 bool lygintiPagalVarda(const studentas& a, const studentas& b)
 {
-    int nrA = std::stoi(a.vardas.substr(6));
-    int nrB = std::stoi(b.vardas.substr(6));
-
-    return nrA < nrB;
+    return a.vardas < b.vardas;
 }
-void printas( const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde){
-    cout<<"|"<<left<<setw(w_vardas)<<A.vardas<<"|"<<left<<setw(w_pavarde)<<A.pavarde;
-    cout<<std::fixed<<std::setprecision(2);
+void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde){
+    failas <<"|"<<left<<setw(w_vardas)<<A.vardas<<"|"<<left<<setw(w_pavarde)<<A.pavarde;
+    failas <<std::fixed<<std::setprecision(2);
     if (pasirinkimas==1)
-        cout<<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.vid_rez;
+        failas<<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.vid_rez;
     else if (pasirinkimas == 2)
-        cout<<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.med_rez;
+        failas <<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.med_rez;
     else
-         cout<<"|"<<right<<setw(10)<<A.vid_rez<<"|"<<right<<setw(10)<<A.med_rez;
+         failas<<"|"<<right<<setw(10)<<A.vid_rez<<"|"<<right<<setw(10)<<A.med_rez;
 
-    cout<<"|\n";
+    failas<<"|\n";
 }
