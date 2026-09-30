@@ -29,6 +29,8 @@ string pasirinktiFaila();
 void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde);
 void skaiciavimas( studentas& B);
 bool lygintiPagalVarda(const studentas& a, const studentas& b);
+void generuotiFaila(const string& failo_pavadinimas, int studentu_skaicius, int pazymiu_kiekis);
+void generuotiVisusFailus();
 int main()
 {
   srand(time(0));
@@ -45,7 +47,8 @@ int main()
   cout<<"2 - Generuoti studentu pazymius atsitiktinai\n";
   cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
-  cout<<"5 - Baigti darba\n";
+  cout<<"5 - Generuoti 5 testavimo failus\n";
+  cout<<"6 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
 
@@ -57,12 +60,16 @@ int main()
         continue;
     }
 
-  if (meniu == 5) 
+  if (meniu == 6) 
   {
     cout << "Programa baigia darba.\n";
     break;
   }
- 
+  if (meniu == 5)
+  {
+    generuotiVisusFailus();
+    continue;
+  }
 
   if (meniu ==  1 || meniu == 2)
   {
@@ -272,7 +279,6 @@ else if (meniu == 4)
    } 
   }
   return 0;
-
 }
 string pasirinktiFaila()
 {
@@ -357,4 +363,49 @@ void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_
          failas<<"|"<<right<<setw(10)<<A.vid_rez<<"|"<<right<<setw(10)<<A.med_rez;
 
     failas<<"|\n";
+}
+void generuotiFaila(const string& failo_pavadinimas, int studentu_skaicius, int pazymiu_kiekis)
+{  
+    cout << "\nKuriamas failas: " << failo_pavadinimas << " (" << studentu_skaicius << " studentu)" << "\n";
+
+    std::ofstream failas(failo_pavadinimas);
+
+    if (!failas.is_open()) 
+    {
+        cout << "Nepavyko sukurti failo " << failo_pavadinimas << "\n";
+        return;
+    }
+
+    failas << left << setw(20) << "Vardas" << setw(20) << "Pavarde";
+    for (int i = 1; i <= pazymiu_kiekis; ++i) 
+    {
+        failas << right << setw(10) << ("ND" + std::to_string(i));
+    }
+
+    failas << right << setw(15) << "Egzaminas" << "\n";
+
+    for (int i = 1; i <= studentu_skaicius; ++i) 
+    {
+        failas << left << setw(20) << ("Vardas" + std::to_string(i)) << setw(20) << ("Pavarde" + std::to_string(i));
+        for (int j = 0; j < pazymiu_kiekis; ++j) 
+        {
+            int pazymys = rand() % 10 + 1;
+            failas << right << setw(10) << pazymys;
+        }
+    int egzaminas = rand() % 10 + 1;
+    failas << right << setw(15) << egzaminas << "\n";
+    }
+    failas.close();
+
+    cout << "Sukurtas failas: " << failo_pavadinimas << "\n";
+}
+void generuotiVisusFailus()
+{
+    generuotiFaila("stud1000.txt", 1000, 15);
+    generuotiFaila("stud10000.txt", 10000, 10);
+    generuotiFaila("stud100000.txt", 100000, 10);
+    generuotiFaila("stud1000000.txt", 1000000, 5);
+    generuotiFaila("stud10000000.txt", 10000000, 5);
+
+    cout << "\nVisi testavimo failai sukurti.\n";
 }
