@@ -1,5 +1,7 @@
 #include "generavimas.h"
 
+#include <chrono>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -11,9 +13,6 @@ using std::string;
 
 void generuotiFaila(const string& pavadinimas, int kiekis, int nd_kiekis)
 {
-    std::mt19937 gen(std::random_device{}());
-    std::uniform_int_distribution<int> dist(1, 10);
-
 
     std::ofstream failas(pavadinimas);
     if (!failas.is_open()) {
@@ -33,7 +32,7 @@ void generuotiFaila(const string& pavadinimas, int kiekis, int nd_kiekis)
         failas << std::left << std::setw(20) << ("Vardas" + std::to_string(i)) << std::setw(20) << ("Pavarde" + std::to_string(i));
         for (int j = 0; j <= nd_kiekis; j++)
         {
-            failas << std::right << std::setw(10) << dist(gen);
+            failas << std::right << std::setw(10) << rand() % 10 + 1;
         }
         failas << "\n";
     }
@@ -45,7 +44,11 @@ void generuotiVisusFailus()
     int dydziai[] = {1000, 10000, 100000, 1000000, 10000000};
     for (int dydis : dydziai)
     {
+        auto pradzia = std::chrono::high_resolution_clock::now();
         generuotiFaila("studentai" + std::to_string(dydis) + ".txt", dydis);
-        std::cout << "Sugeneruotas failas su " << dydis << " irasu\n";
+        auto pabaiga = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> laikas = pabaiga - pradzia;
+
+        std::cout << dydis << " Irasu failo kurimo laikas: " << laikas.count() << " sekundžių\n";
     }
-}
+} 
