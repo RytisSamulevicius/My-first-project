@@ -33,7 +33,7 @@ void skaiciavimas( studentas& B);
 bool lygintiPagalVarda(const studentas& a, const studentas& b);
 void skirstyti (const vector<studentas>& visi, vector<studentas>& vargsiukai, vector<studentas>& kietiakai, int pasirinkimas);
 bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe);
-
+void IrasytiIFaila(const string & failo_pavadinimas, const vector<studentas>& studentai, int pasirinkimas);
 int main()
 {
   srand(time(0));
@@ -231,57 +231,30 @@ else if (meniu == 4)
    }
    else if (meniu == 6)
    {
-      if (grupe.empty()) {
-          cout << "Studentu dar nera. Pirmiausia reikia nuskaityti faila\n";
-          continue;
-      }
-      int pasirinkimas;
-      cout<<"\nJeigu nori, kad galutini bala nusakytu vidurkis, spauskite 1\n";
-      cout<<"\nJeigu nori, kad galutini bala nusakytu mediana, spauskite 2\n";
-      cout<<"Pasirinkimas: ";
-      cin >> pasirinkimas;
+        string failo_pavadinimas = pasirinktiFaila();
+        int pasirinkimas;
+        cout << "Pagal ka skirstyti? 1 - pagal vidurki, 2 - pagal mediana: ";
+        cin >> pasirinkimas;
+        if (cin.fail() || (pasirinkimas != 1 && pasirinkimas != 2)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
 
-       if (pasirinkimas != 1 && pasirinkimas != 2) {
-          cout << "Neteisingas pasirinkimas.\n";
-          continue;
-      }
+        vector<studentas> studentai;
+        if (!NuskaitytiFaila(failo_pavadinimas, studentai)) continue;
+        if (studentai.empty()) {
+            cout << "Faila nera tinkamu irasu.\n";
+            continue;
+        }
+        vector<studentas> vargsiukai;
+        vector<studentas> kietiakai;
+        skirstyti(studentai, vargsiukai, kietiakai, pasirinkimas);
 
-      vector<studentas> vargsiukai;
-      vector<studentas> kietiakai;
-
-      auto pradzia = std::chrono::high_resolution_clock::now();
-      skirstyti(grupe, vargsiukai, kietiakai, pasirinkimas);
-      auto pabaiga = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double> laikas = pabaiga - pradzia;
-
-      std::ofstream vargsiukaiFailas("vargsiukai.txt");
-      std::ofstream kietiakaiFailas("kietiakai.txt");
-
-      if (!vargsiukaiFailas.is_open() || !kietiakaiFailas.is_open()) {
-          cout << "Nepavyko sukurti failu.\n";
-          continue;
-      }
-
-      for (const auto& s : vargsiukai) {
-          vargsiukaiFailas << s.vardas << " " << s.pavarde << " ";
-          for (int paz : s.paz) {
-              vargsiukaiFailas << paz << " ";
-          }
-          vargsiukaiFailas << s.exam << "\n";
-      }
-
-      for (const auto& s : kietiakai) {
-          kietiakaiFailas << s.vardas << " " << s.pavarde << " ";
-          for (int paz : s.paz) {
-              kietiakaiFailas << paz << " ";
-          }
-          kietiakaiFailas << s.exam << "\n";
-      }
-
-      vargsiukaiFailas.close();
-      kietiakaiFailas.close();
-
-      cout << "Studentai suskirstyti i dvi grupes. Rezultatai issaugoti failuose 'vargsiukai.txt' ir 'kietiakai.txt'.\n";
+        IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
+        IrasytiIFaila("kietiakai.txt", kietiakai, pasirinkimas);
+        cout << "Studentai suskirstyti i dvi grupes ir issaugoti failuose vargsiukai.txt ir kietiakai.txt\n";
    }
    else
    {
@@ -450,5 +423,37 @@ bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe)
     std::chrono::duration<double> laikas = pabaiga - pradzia;
     cout << "Failo is " <<grupe.size() << " irasu nuskaitymo laikas: " << laikas.count() << "\n";
     return true;
+
+}
+void IrasytiIFaila(const string & failo_pavadinimas, const vector<studentas>& studentai, int pasirinkimas)
+{
+    std::ofstream failas(failo_pavadinimas);
+    if (!failas.is_open()) {
+        cout << "Nepavyko sukurti failo: " << failo_pavadinimas << "\n";
+        return; 
+    }
+    
+    failas <<left<<setw(20)<<"Vardas"<<setw(20)<<"Pavarde";
+    if (pasirinkimas == 1)
+        failas <<right<<setw(15)<<"Gal.(vid)";
+    else 
+        failas <<right<<setw(15)<<"Gal.(med)";
+    failas << "\n";
+
+    failas << std::fixed << std::setprecision(2);
+    for (const studentas& s : studentai) 
+    {
+        failas <<left<<setw(20)<<s.vardas<<setw(20)<<s.pavarde;
+        if (pasirinkimas == 1)
+            failas <<right<<setw(15)<<s.vid_rez;
+        else 
+            failas <<right<<setw(15)<<s.med_rez;
+        failas << "\n";
+    }
+    if (!failas){
+        cout << "Klaida irasyme i faila: " << failo_pavadinimas << "\n";
+        return;   
+    }
+    failas.close();
 
 }
