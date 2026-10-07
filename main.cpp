@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+#include <chrono>
 #include "generavimas.h"
 
 using std::string;
@@ -30,6 +31,9 @@ string pasirinktiFaila();
 void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde);
 void skaiciavimas( studentas& B);
 bool lygintiPagalVarda(const studentas& a, const studentas& b);
+void skirstyti (const vector<studentas>& visi, vector<studentas>& vargsiukai, vector<studentas>& kietiakai, int pasirinkimas);
+bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe);
+
 int main()
 {
   srand(time(0));
@@ -47,7 +51,8 @@ int main()
   cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
   cout<<"5 - Sugeneruoti studentu failus\n";
-  cout<<"6 - Baigti darba\n";
+  cout<<"6 - Skirstyti studentus i dvi grupes pagal galutini bala\n";
+  cout<<"7 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
 
@@ -55,11 +60,11 @@ int main()
     {
         cin.clear();
         cin.ignore(10000, '\n');
-        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 5.\n";
+        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 7.\n";
         continue;
     }
 
-  if (meniu == 6) 
+  if (meniu == 7) 
   {
     cout << "Programa baigia darba.\n";
     break;
@@ -161,56 +166,8 @@ else if (meniu == 3)
         cout << "Failas nerastas. Grizti prie meniu.\n";
         continue;
     }
-    std::ifstream failas (failo_pavadinimas);
-    if (!failas.is_open()){
-        cout << "Nepavyko atidaryti failo " << failo_pavadinimas << "\n";
-        continue;
-    }
-
-    grupe.clear();
-    string eilute;
-    std::getline(failas, eilute);
-
-    while(std::getline(failas, eilute))
-    {
-        std::stringstream s(eilute);
-        studentas S;
-        s >> S.vardas >> S.pavarde;
-
-        vector<int> rezultatai;
-
-        int x;
-
-        while(s >> x)
-        {
-            if(x < 1 || x > 10)
-             {
-                cout << "Klaida faile: " << eilute << "'\n";
-                rezultatai.clear();
-                break;
-             }
-            rezultatai.push_back(x);
-        }
-        if (!s.eof())
-        {
-            cout << "Klaida faile: " << eilute << "\n";
-            continue;
-        }
-        if (rezultatai.empty()) continue;
-
-        S.exam = rezultatai.back();
-        rezultatai.pop_back();
-        S.paz = rezultatai;
-
-        skaiciavimas(S);
-
-        grupe.push_back(std::move(S));
-        
-    }
-    failas.close();
-
-    std::sort(grupe.begin(), grupe.end(), lygintiPagalVarda);
-  }
+    NuskaitytiFaila(failo_pavadinimas, grupe);
+ }
 
 else if (meniu == 4)
 {
@@ -269,8 +226,62 @@ else if (meniu == 4)
     cout << "Rezultatai issaugoti faile rezultatai.txt\n";
    }
    else if (meniu == 5)
-{
+   {
       generuotiVisusFailus();
+   }
+   else if (meniu == 6)
+   {
+      if (grupe.empty()) {
+          cout << "Studentu dar nera. Pirmiausia reikia nuskaityti faila\n";
+          continue;
+      }
+      int pasirinkimas;
+      cout<<"\nJeigu nori, kad galutini bala nusakytu vidurkis, spauskite 1\n";
+      cout<<"\nJeigu nori, kad galutini bala nusakytu mediana, spauskite 2\n";
+      cout<<"Pasirinkimas: ";
+      cin >> pasirinkimas;
+
+       if (pasirinkimas != 1 && pasirinkimas != 2) {
+          cout << "Neteisingas pasirinkimas.\n";
+          continue;
+      }
+
+      vector<studentas> vargsiukai;
+      vector<studentas> kietiakai;
+
+      auto pradzia = std::chrono::high_resolution_clock::now();
+      skirstyti(grupe, vargsiukai, kietiakai, pasirinkimas);
+      auto pabaiga = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> laikas = pabaiga - pradzia;
+
+      std::ofstream vargsiukaiFailas("vargsiukai.txt");
+      std::ofstream kietiakaiFailas("kietiakai.txt");
+
+      if (!vargsiukaiFailas.is_open() || !kietiakaiFailas.is_open()) {
+          cout << "Nepavyko sukurti failu.\n";
+          continue;
+      }
+
+      for (const auto& s : vargsiukai) {
+          vargsiukaiFailas << s.vardas << " " << s.pavarde << " ";
+          for (int paz : s.paz) {
+              vargsiukaiFailas << paz << " ";
+          }
+          vargsiukaiFailas << s.exam << "\n";
+      }
+
+      for (const auto& s : kietiakai) {
+          kietiakaiFailas << s.vardas << " " << s.pavarde << " ";
+          for (int paz : s.paz) {
+              kietiakaiFailas << paz << " ";
+          }
+          kietiakaiFailas << s.exam << "\n";
+      }
+
+      vargsiukaiFailas.close();
+      kietiakaiFailas.close();
+
+      cout << "Studentai suskirstyti i dvi grupes. Rezultatai issaugoti failuose 'vargsiukai.txt' ir 'kietiakai.txt'.\n";
    }
    else
    {
@@ -287,11 +298,12 @@ string pasirinktiFaila()
     while (true)
     {
         cout << "\n -----Pasirinkite faila:-----\n";
-        cout << "1 - kursiokai.txt\n";
+        cout << "1 - studentai1000.txt\n";
         cout << "2 - studentai10000.txt\n";
         cout << "3 - studentai100000.txt\n";
         cout << "4 - studentai1000000.txt\n";
-        cout << "5 - Iveskite failo pavadinima paciam\n";
+        cout << "5 - studentai10000000.txt\n";
+        cout << "6 - Iveskite failo pavadinima paciam\n";
         cout << "0 - atsaukti\n";
         cout << "Pasirinkimas: ";
         cin >> pasirinkimas;
@@ -301,14 +313,14 @@ string pasirinktiFaila()
         {
            cin.clear();
            cin.ignore(10000, '\n');
-           cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 0 iki 5.\n";
+           cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 0 iki 6.\n";
            continue;
         }
 
         switch (pasirinkimas)
          {
             case 1:
-                return "kursiokai.txt";
+                return "studentai1000.txt";
             case 2:
                 return "studentai10000.txt";
             case 3:
@@ -316,6 +328,8 @@ string pasirinktiFaila()
             case 4:
                 return "studentai1000000.txt";
             case 5:
+                return "studentai10000000.txt";
+            case 6:
             {
                 string failo_pavadinimas;
                 cout << "Iveskite failo pavadinima: ";
@@ -363,4 +377,78 @@ void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_
          failas<<"|"<<right<<setw(10)<<A.vid_rez<<"|"<<right<<setw(10)<<A.med_rez;
 
     failas<<"|\n";
+}
+void skirstyti (const vector<studentas>& visi, vector<studentas>& vargsiukai, vector<studentas>& kietiakai, int pasirinkimas)
+{
+    for (const studentas& s : visi) 
+    {
+        double galutinis;
+        if (pasirinkimas == 1)
+            galutinis = s.vid_rez;
+        else
+            galutinis = s.med_rez;
+
+        if (galutinis < 5.0) 
+            vargsiukai.push_back(s);
+        else 
+            kietiakai.push_back(s);
+    }
+}
+bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe)
+{
+    auto pradzia = std::chrono::high_resolution_clock::now();
+
+    std::ifstream failas (failo_pavadinimas);
+    if (!failas.is_open()){
+        cout << "Nepavyko atidaryti failo " << failo_pavadinimas << "\n";
+        return false;
+    }
+
+    grupe.clear();
+    string eilute;
+    std::getline(failas, eilute);
+
+    while(std::getline(failas, eilute))
+    {
+        std::stringstream s(eilute);
+        studentas S;
+        s >> S.vardas >> S.pavarde;
+
+        vector<int> rezultatai;
+
+        int x;
+        bool klaida = false;
+        while(s >> x)
+        {
+            if(x < 1 || x > 10)
+             {
+                klaida = true;
+                break;
+             }
+            rezultatai.push_back(x);
+        }
+        if (klaida || !s.eof())
+        {
+            cout << "Klaida faile: " << eilute << "\n";
+            continue;
+        }
+        if (rezultatai.empty()) continue;
+
+        S.exam = rezultatai.back();
+        rezultatai.pop_back();
+        S.paz = rezultatai;
+
+        skaiciavimas(S);
+
+        grupe.push_back(std::move(S));
+        
+    }
+    failas.close();
+    cout << "Failas uzdarytas\n";
+
+    auto pabaiga = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> laikas = pabaiga - pradzia;
+    cout << "Failo is " <<grupe.size() << " irasu nuskaitymo laikas: " << laikas.count() << "\n";
+    return true;
+
 }
