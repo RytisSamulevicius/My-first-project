@@ -40,7 +40,7 @@ int main()
   cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
   cout<<"5 - Sugeneruoti studentu failus\n";
-  cout<<"6 - Skirstyti studentus i dvi grupes pagal galutini bala\n";
+  cout<<"6 - Studentai isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
   cout<<"7 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
@@ -223,92 +223,110 @@ else if (meniu == 4)
         string failo_pavadinimas = pasirinktiFaila();
         if (failo_pavadinimas.empty()) continue;
 
-        int pasirinkimas, rusiavimas;
+        int pasirinkimas;
         cout << "Pagal ka skirstyti? 1 - pagal vidurki, 2 - pagal mediana: ";
         cin >> pasirinkimas;
+
         if (cin.fail() || (pasirinkimas != 1 && pasirinkimas != 2)) {
             cin.clear();
             cin.ignore(10000, '\n');
             cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
             continue;
         }
+        int rusiavimas;
         cout << "Kaip rusiuoti rezultatus? 1 - pagal varda, 2 - pagal pavarde, 3 - pagal galutini bala: ";
         cin >> rusiavimas;
+
         if (cin.fail() || (rusiavimas != 1 && rusiavimas != 2 && rusiavimas != 3)) {
             cin.clear();
             cin.ignore(10000, '\n');
             cout << "Neteisingas pasirinkimas. Iveskite 1, 2 arba 3.\n";
             continue;
         }  
-
+        
         int bandymai;
-        cout << "Kiek kartu kartoti testa?";
+        cout << "Kiek kartų atlikti testą? ";
         cin >> bandymai;
-        if (cin.fail() || bandymai < 1) {
+        if (cin.fail() || bandymai <= 0) {
             cin.clear();
             cin.ignore(10000, '\n');
-            bandymai = 3;
+            cout << "Neteisingas pasirinkimas. Iveskite teigiamą sveiką skaičių.\n";
+            continue;
         }
 
         double sk_nuskaitymas = 0, sk_skirstymas = 0, sk_rusiavimas = 0;
-        double sk_rasymas_vargsiukai = 0, sk_rasymas_kietiakai = 0;
+        double sk_rasymas_vargsiukai = 0, sk_rasymas_kietiakai = 0, sk_bendras_laikas = 0;
         size_t kiekis = 0;
         int atlikimas = 0;
+        
+        for (int i = 0; i < bandymai; ++i)
+        {
+        vector <studentas> studentai, vargsiukai, kietiakai;
+        auto t1 = std::chrono::high_resolution_clock::now();
+        if (!NuskaitytiFaila(failo_pavadinimas, studentai)) {
+            cout << "Nepavyko nuskaityti failo. Testas nutrauktas.\n";
+            break;
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> nuskaitymas = t2 - t1;
+        kiekis = studentai.size();
 
-        for (int i = 0; i < bandymai; ++i) {
-            vector <studentas> studentai, vargsiukai, kietiakai;
-            auto t1 = std::chrono::high_resolution_clock::now();
-            if (!NuskaitytiFaila(failo_pavadinimas, studentai)) {
-                cout << "Nepavyko nuskaityti failo. Testas nutrauktas.\n";
-                break;
-            }
-            auto t2 = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> nuskaitymas = t2 - t1;
-            kiekis = studentai.size();
+        skirstyti(studentai, vargsiukai, kietiakai, pasirinkimas);
+        auto t3 = std::chrono::high_resolution_clock::now();
 
-            skirstyti(studentai, vargsiukai, kietiakai, pasirinkimas);
-            auto t3 = std::chrono::high_resolution_clock::now();
+        if(rusiavimas == 1){
+            std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalVarda);
+            std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalVarda);
+        }
+        else if(rusiavimas == 2){
+            std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalPavarde);
+            std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalPavarde);
+        }
+        else if(rusiavimas == 3){
+            std::sort(vargsiukai.begin(), vargsiukai.end(), [pasirinkimas](const studentas& a, const studentas& b) {
+                return lygintiPagalGalutiniBala(a, b, pasirinkimas);
+            });
 
-            if(rusiavimas == 1){
-                std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalVarda);
-                std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalVarda);
-            }
-            else if(rusiavimas == 2){
-                std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalPavarde);
-                std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalPavarde);
-            }
-            else if(rusiavimas == 3){
-                std::sort(vargsiukai.begin(), vargsiukai.end(), [pasirinkimas](const studentas& a, const studentas& b) {
-                    return lygintiPagalGalutiniBala(a, b, pasirinkimas);
-                });
-                std::sort(kietiakai.begin(), kietiakai.end(), [pasirinkimas](const studentas& a, const studentas& b) {
-                    return lygintiPagalGalutiniBala(a, b, pasirinkimas);
-                });
-            }
-            auto t4 = std::chrono::high_resolution_clock::now();
+        }
+        auto t4 = std::chrono::high_resolution_clock::now();
 
-            IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
-            auto t5 = std::chrono::high_resolution_clock::now();
+        IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
+        auto t5 = std::chrono::high_resolution_clock::now();
 
-            IrasytiIFaila("kietiakai.txt", kietiakai, pasirinkimas);
-            auto t6 = std::chrono::high_resolution_clock::now();
+        IrasytiIFaila("kietiakai.txt", kietiakai, pasirinkimas);
+        auto t6 = std::chrono::high_resolution_clock::now();
             
-            sk_nuskaitymas += std::chrono::duration<double>(t2 - t1).count();
-            sk_skirstymas += std::chrono::duration<double>(t3 - t2).count();
-            sk_rusiavimas += std::chrono::duration<double>(t4 - t3).count();
-            sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
-            sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
-            atlikimas++;
+        sk_nuskaitymas += std::chrono::duration<double>(t2 - t1).count();
+        sk_skirstymas += std::chrono::duration<double>(t3 - t2).count();
+        sk_rusiavimas += std::chrono::duration<double>(t4 - t3).count();
+        sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
+        sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
+        sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
+        kiekis = studentai.size();
+    
         }
-        if (atlikimas > 0){
-            cout << "\n----" << kiekis << " irasu testas (" << atlikimas << " bandymu vidurkis)----\n";
-            cout << kiekis << " Failo nuskaitymo laikas: " << (sk_nuskaitymas / atlikimas) << " sekundžių\n";
-            cout << kiekis << " Studentu skirstymo i dvi grupes laikas: " << (sk_skirstymas / atlikimas) << " sekundžių\n";
-            cout << kiekis << " Studentu rusiuojimo laikas: " << (sk_rusiavimas / atlikimas) << " sekundžių\n";
-            cout << kiekis << " Rezultatu irasymas i vargsiukai.txt: " << (sk_rasymas_vargsiukai / atlikimas) << " sekundžių\n";     
-            cout << kiekis << " Rezultatu irasymas i kietiakai.txt: " << (sk_rasymas_kietiakai / atlikimas) << " sekundžių\n";    
-            cout << kiekis << " Bendras laikas: " << ((sk_nuskaitymas + sk_skirstymas + sk_rusiavimas + sk_rasymas_vargsiukai + sk_rasymas_kietiakai) / atlikimas) << " sekundžių\n"; 
+        if (bandymas == 1)
+        {
+        cout << "\nFailas uzdarytas\n";
+        cout << kiekis << " Irasu failo nuskaitymo laikas: " << sk_nuskaitymas  << " sekundžių\n";
+        cout << kiekis << " Irasu studentu skirstymo i dvi grupes laikas: " << sk_skirstymas  << " sekundžių\n";
+        cout << kiekis << " Irasu studentu rusiavimo laikas: " << sk_rusiavimas  << " sekundžių\n";
+        cout << kiekis << " Irasu rezultatu irasymas i vargsiukai.txt: " << sk_rasymas_vargsiukai  << " sekundžių\n";     
+        cout << kiekis << " Irasu rezultatu irasymas i kietiakai.txt: " << sk_rasymas_kietiakai  << " sekundžių\n";    
+        cout << kiekis << " Irasu bendras laikas: " << sk_bendras_laikas  << " sekundžių\n"; 
         }
+        else 
+        {
+        cout << "\nFailas uzdarytas\n";
+        cout << kiekis << " Irasu failo nuskaitymo laiko vidurkis: " << sk_nuskaitymas / bandymai << " sekundžių\n";
+        cout << kiekis << " Irasu studentu skirstymo i dvi grupes laiko vidurkis: " << sk_skirstymas / bandymai << " sekundžių\n";
+        cout << kiekis << " Irasu studentu rusiavimo laiko vidurkis: " << sk_rusiavimas / bandymai << " sekundžių\n";
+        cout << kiekis << " Irasu rezultatu irasymas i vargsiukai.txt laiko vidurkis: " << sk_rasymas_vargsiukai / bandymai << " sekundžių\n";     
+        cout << kiekis << " Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: " << sk_rasymas_kietiakai / bandymai << " sekundžių\n";    
+        cout << kiekis << " Irasu bendras laiko vidurkis: " << sk_bendras_laikas / bandymai << " sekundžių\n"; 
+        }
+        
+        
    } 
    else
    {

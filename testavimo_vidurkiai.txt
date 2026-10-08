@@ -1,0 +1,29 @@
+#Programos veikimo analizes skirtingu generuotu failu palyginimas
+
+1000 irasu:
+
+1000 Irasu failo nuskaitymo laiko vidurkis: 0.00693585 sekundžių
+1000 Irasu studentu skirstymo i dvi grupes laiko vidurkis: 0.0006318 sekundžių
+1000 Irasu studentu rusiavimo laiko vidurkis: 0.000252 sekundžių
+1000 Irasu rezultatu irasymas i vargsiukai.txt laiko vidurkis: 0.000354458 sekundžių
+1000 Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: 0.000406233 sekundžių
+1000 Irasu bendras laiko vidurkis: 0.00858034 sekundžių
+
+10000 irasu:
+
+10000 Irasu failo nuskaitymo laiko vidurkis: 0.0382645 sekundžių
+10000 Irasu studentu skirstymo i dvi grupes laiko vidurkis: 0.00306758 sekundžių
+10000 Irasu studentu rusiavimo laiko vidurkis: 0.00110641 sekundžių
+10000 Irasu rezultatu irasymas i vargsiukai.txt laiko vidurkis: 0.00109538 sekundžių
+10000 Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: 0.00158148 sekundžių
+10000 Irasu bendras laiko vidurkis: 0.0451153 sekundžių
+
+100000 irasu:
+
+100000 Irasu failo nuskaitymo laiko vidurkis: 0.328648 sekundžių
+100000 Irasu studentu skirstymo i dvi grupes laiko vidurkis: 0.0296534 sekundžių
+100000 Irasu studentu rusiavimo laiko vidurkis: 0.0101203 sekundžių
+100000 Irasu rezultatu irasymas i vargsiukai.txt laiko vidurkis: 0.0101851 sekundžių
+100000 Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: 0.0143092 sekundžių
+100000 Irasu bendras laiko vidurkis: 0.392916 sekundžių
+
