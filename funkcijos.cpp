@@ -87,10 +87,6 @@ void skaiciavimas( studentas& B)
     B.vid_rez=0.4*std::accumulate(B.paz.begin(), B.paz.end(), 0.0)/B.paz.size() + 0.6*B.exam;
     B.med_rez = 0.4*mediana + 0.6*B.exam;
 }
-bool lygintiPagalVarda(const studentas& a, const studentas& b)
-{
-    return a.vardas < b.vardas;
-}
 void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde){
     failas <<"|"<<left<<setw(w_vardas)<<A.vardas<<"|"<<left<<setw(w_pavarde)<<A.pavarde;
     failas <<std::fixed<<std::setprecision(2);
@@ -121,7 +117,6 @@ void skirstyti (const vector<studentas>& visi, vector<studentas>& vargsiukai, ve
 }
 bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe)
 {
-    auto pradzia = std::chrono::high_resolution_clock::now();
 
     std::ifstream failas (failo_pavadinimas);
     if (!failas.is_open()){
@@ -169,12 +164,8 @@ bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe)
         
     }
     failas.close();
-    cout << "Failas uzdarytas\n";
-
-    auto pabaiga = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> laikas = pabaiga - pradzia;
-    cout << "Failo is " <<grupe.size() << " irasu nuskaitymo laikas: " << laikas.count() << "\n";
     return true;
+    cout << "Failas uzdarytas\n";
 
 }
 void IrasytiIFaila(const string & failo_pavadinimas, const vector<studentas>& studentai, int pasirinkimas)
@@ -209,3 +200,17 @@ void IrasytiIFaila(const string & failo_pavadinimas, const vector<studentas>& st
     failas.close();
 
 }
+bool lygintiPagalVarda(const studentas& a, const studentas& b) {
+    return a.vardas < b.vardas;
+}
+bool lygintiPagalPavarde(const studentas& a, const studentas& b) {
+    return a.pavarde < b.pavarde;
+}
+bool lygintiPagalGalutiniBala(const studentas& a, const studentas& b, int pasirinkimas) {
+     if (pasirinkimas == 1) {
+        return a.vid_rez < b.vid_rez;
+    } else {
+        return a.med_rez < b.med_rez;
+    }
+}
+    
