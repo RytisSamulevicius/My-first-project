@@ -115,59 +115,6 @@ void skirstyti (const vector<studentas>& visi, vector<studentas>& vargsiukai, ve
             kietiakai.push_back(s);
     }
 }
-bool NuskaitytiFaila(const string & failo_pavadinimas, vector<studentas>& grupe)
-{
-
-    std::ifstream failas (failo_pavadinimas);
-    if (!failas.is_open()){
-        cout << "Nepavyko atidaryti failo " << failo_pavadinimas << "\n";
-        return false;
-    }
-
-    grupe.clear();
-    string eilute;
-    std::getline(failas, eilute);
-
-    while(std::getline(failas, eilute))
-    {
-        std::stringstream s(eilute);
-        studentas S;
-        s >> S.vardas >> S.pavarde;
-
-        vector<int> rezultatai;
-
-        int x;
-        bool klaida = false;
-        while(s >> x)
-        {
-            if(x < 1 || x > 10)
-             {
-                klaida = true;
-                break;
-             }
-            rezultatai.push_back(x);
-        }
-        if (klaida || !s.eof())
-        {
-            cout << "Klaida faile: " << eilute << "\n";
-            continue;
-        }
-        if (rezultatai.empty()) continue;
-
-        S.exam = rezultatai.back();
-        rezultatai.pop_back();
-        S.paz = rezultatai;
-
-        skaiciavimas(S);
-
-        grupe.push_back(std::move(S));
-        
-    }
-    failas.close();
-    return true;
-    cout << "Failas uzdarytas\n";
-
-}
 void IrasytiIFaila(const string & failo_pavadinimas, const vector<studentas>& studentai, int pasirinkimas)
 {
     std::ofstream failas(failo_pavadinimas);
