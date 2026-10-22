@@ -99,54 +99,6 @@ void printas(std::ofstream& failas, const studentas& A, int pasirinkimas, int w_
 
     failas<<"|\n";
 }
-void skirstyti (const vector<studentas>& visi, vector<studentas>& vargsiukai, vector<studentas>& kietiakai, int pasirinkimas)
-{
-    for (const studentas& s : visi) 
-    {
-        double galutinis;
-        if (pasirinkimas == 1)
-            galutinis = s.vid_rez;
-        else
-            galutinis = s.med_rez;
-
-        if (galutinis < 5.0) 
-            vargsiukai.push_back(s);
-        else 
-            kietiakai.push_back(s);
-    }
-}
-void IrasytiIFaila(const string & failo_pavadinimas, const vector<studentas>& studentai, int pasirinkimas)
-{
-    std::ofstream failas(failo_pavadinimas);
-    if (!failas.is_open()) {
-        cout << "Nepavyko sukurti failo: " << failo_pavadinimas << "\n";
-        return; 
-    }
-    
-    failas <<left<<setw(20)<<"Vardas"<<setw(20)<<"Pavarde";
-    if (pasirinkimas == 1)
-        failas <<right<<setw(15)<<"Gal.(vid)";
-    else 
-        failas <<right<<setw(15)<<"Gal.(med)";
-    failas << "\n";
-
-    failas << std::fixed << std::setprecision(2);
-    for (const studentas& s : studentai) 
-    {
-        failas <<left<<setw(20)<<s.vardas<<setw(20)<<s.pavarde;
-        if (pasirinkimas == 1)
-            failas <<right<<setw(15)<<s.vid_rez;
-        else 
-            failas <<right<<setw(15)<<s.med_rez;
-        failas << "\n";
-    }
-    if (!failas){
-        cout << "Klaida irasyme i faila: " << failo_pavadinimas << "\n";
-        return;   
-    }
-    failas.close();
-
-}
 bool lygintiPagalVarda(const studentas& a, const studentas& b) {
     return a.vardas < b.vardas;
 }
