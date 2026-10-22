@@ -40,7 +40,7 @@ int main()
   cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
   cout<<"5 - Sugeneruoti studentu failus\n";
-  cout<<"6 - Studentai isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
+  cout<<"6 - Studentus isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
   cout<<"7 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
@@ -271,23 +271,12 @@ else if (meniu == 4)
         std::chrono::duration<double> nuskaitymas = t2 - t1;
         kiekis = studentai.size();
 
-        skirstyti(studentai, vargsiukai, kietiakai, pasirinkimas);
+        skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
         auto t3 = std::chrono::high_resolution_clock::now();
 
-        if(rusiavimas == 1){
-            std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalVarda);
-            std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalVarda);
-        }
-        else if(rusiavimas == 2){
-            std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalPavarde);
-            std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalPavarde);
-        }
-        else if(rusiavimas == 3){
-            std::sort(vargsiukai.begin(), vargsiukai.end(), [pasirinkimas](const studentas& a, const studentas& b) {
-                return lygintiPagalGalutiniBala(a, b, pasirinkimas);
-            });
-
-        }
+        rikiuotiStudentus(vargsiukai, rusiavimas, pasirinkimas);
+        rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
+        
         auto t4 = std::chrono::high_resolution_clock::now();
 
         IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
@@ -305,7 +294,7 @@ else if (meniu == 4)
         kiekis = studentai.size();
     
         }
-        if (bandymas == 1)
+        if (bandymai == 1)
         {
         cout << "\nFailas uzdarytas\n";
         cout << kiekis << " Irasu failo nuskaitymo laikas: " << sk_nuskaitymas  << " sekundžių\n";
