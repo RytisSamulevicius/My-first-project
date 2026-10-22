@@ -135,6 +135,9 @@ int main()
        }
           skaiciavimas(A);
           grupe.push_back(A);
+          
+          cout << "Studento objekto adresas atmintyje: " << &grupe.back() << "\n";
+          
           A.pavarde.clear();
           A.vardas.clear();
           A.paz.clear();
@@ -282,7 +285,6 @@ else if (meniu == 4)
             break;
         }
         auto t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> nuskaitymas = t2 - t1;
         kiekis = studentai.size();
 
         skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
@@ -320,7 +322,6 @@ else if (meniu == 4)
             break;
         }
         auto t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> nuskaitymas = t2 - t1;
         kiekis = studentai.size();
 
         skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
