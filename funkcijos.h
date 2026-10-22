@@ -26,10 +26,11 @@ bool lygintiPagalVarda(const studentas& a, const studentas& b);
 bool lygintiPagalPavarde(const studentas& a, const studentas& b);
 bool lygintiPagalGalutiniBala(const studentas& a, const studentas& b, int pasirinkimas);
 void rikiuotiStudentus(std::vector<studentas>&grupe, int rusiavimas, int pasirinkimas);
+void rikiuotiStudentus(std::list<studentas>&grupe, int rusiavimas, int pasirinkimas);
 
 
-template <typename K>
-bool NuskaitytiFaila(const std::string & failo_pavadinimas, K& grupe)
+template <typename T>
+bool NuskaitytiFaila(const std::string & failo_pavadinimas, T& grupe)
 {
     std::ifstream failas (failo_pavadinimas);
     if (!failas.is_open()){
@@ -82,8 +83,8 @@ bool NuskaitytiFaila(const std::string & failo_pavadinimas, K& grupe)
     return true;
 
 }
-template <typename K>
-void IrasytiIFaila(const string & failo_pavadinimas, const K& studentai, int pasirinkimas)
+template <typename T>
+void IrasytiIFaila(const string & failo_pavadinimas, const T& studentai, int pasirinkimas)
 {
     std::ofstream failas(failo_pavadinimas);
     if (!failas.is_open()) {

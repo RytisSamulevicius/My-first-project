@@ -135,18 +135,18 @@ void rikiuotiStudentus(std::list<studentas>& grupe, int rusiavimas, int pasirink
 {
     if (rusiavimas == 1)
     {
-        grupe.sort(lygintiPagalVarda)
+        grupe.sort(lygintiPagalVarda);
     }
     else if (rusiavimas == 2)
     {
-        grupe.sort(lygintiPagalPavarde)
+        grupe.sort(lygintiPagalPavarde);
     }
     else if (rusiavimas == 3)
     {
         grupe.sort(
-            [pasirinkimas] (const studebtas &a, const studentas& b)
+            [pasirinkimas] (const studentas &a, const studentas& b)
         {
-            returb lygintiPagalGalutiniBala(a, b, pasirinkimas);
+            return lygintiPagalGalutiniBala(a, b, pasirinkimas);
         });
     }
 }
