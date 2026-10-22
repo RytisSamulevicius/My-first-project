@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 #include <iomanip>
 #include <numeric>
 #include <algorithm>
@@ -17,6 +18,7 @@
 
 using std::string;
 using std::vector;
+using std::list;
 using std::cin;
 using std::cout;
 using std::left;
@@ -220,6 +222,17 @@ else if (meniu == 4)
    }
    else if (meniu == 6)
    {
+        int konteineris;
+        cout << "Pasirinkite konteineri: 1 - vector, 2 - list: ";
+        cin >> konteineris;
+
+        if (konteineris != 1 && konteineris != 2) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
+
         string failo_pavadinimas = pasirinktiFaila();
         if (failo_pavadinimas.empty()) continue;
 
