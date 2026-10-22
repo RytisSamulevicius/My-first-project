@@ -112,4 +112,41 @@ bool lygintiPagalGalutiniBala(const studentas& a, const studentas& b, int pasiri
         return a.med_rez < b.med_rez;
     }
 }
-    
+void rikiuotiStudentus(std::vector<studentas>& grupe, int rusiavimas, int pasirinkimas)
+{
+    if (rusiavimas == 1)
+    {
+        std::sort(grupe.begin(), grupe.end(), lygintiPagalVarda);   
+    }
+    else if (rusiavimas == 2)
+    {
+        std::sort(grupe.begin(), grupe.end(), lygintiPagalPavarde);   
+    }
+    else if (rusiavimas == 3)
+    {
+        std::sort(grupe.begin(), grupe.end(),
+        [pasirinkimas](const studentas &a, const studentas& b)
+        {
+            return lygintiPagalGalutiniBala(a, b, pasirinkimas);
+        });
+    }
+}
+void rikiuotiStudentus(std::list<studentas>& grupe, int rusiavimas, int pasirinkimas)
+{
+    if (rusiavimas == 1)
+    {
+        grupe.sort(lygintiPagalVarda)
+    }
+    else if (rusiavimas == 2)
+    {
+        grupe.sort(lygintiPagalPavarde)
+    }
+    else if (rusiavimas == 3)
+    {
+        grupe.sort(
+            [pasirinkimas] (const studebtas &a, const studentas& b)
+        {
+            returb lygintiPagalGalutiniBala(a, b, pasirinkimas);
+        });
+    }
+}

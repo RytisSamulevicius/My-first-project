@@ -7,6 +7,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <list>
 
 using std::string;
 using std::vector;
@@ -24,6 +25,8 @@ void skaiciavimas(studentas& B);
 bool lygintiPagalVarda(const studentas& a, const studentas& b);
 bool lygintiPagalPavarde(const studentas& a, const studentas& b);
 bool lygintiPagalGalutiniBala(const studentas& a, const studentas& b, int pasirinkimas);
+void rikiuotiStudentus(std::vector<studentas>&grupe, int rusiavimas, int pasirinkimas);
+
 
 template <typename K>
 bool NuskaitytiFaila(const std::string & failo_pavadinimas, K& grupe)
@@ -114,8 +117,11 @@ void IrasytiIFaila(const string & failo_pavadinimas, const K& studentai, int pas
 }
 template <typename T>
 void skirstytiStudentus (const T& grupe, T& vargsiukai, T& kietiakai, int pasirinkimas)
-{
-    for (const studentas& s : visi) 
+{ 
+    vargsiukai.clear();
+    kietiakai.clear();
+
+    for (const studentas& s : grupe) 
     {
         double galutinis;
         if (pasirinkimas == 1)
