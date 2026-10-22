@@ -271,7 +271,8 @@ else if (meniu == 4)
         double sk_rasymas_vargsiukai = 0, sk_rasymas_kietiakai = 0, sk_bendras_laikas = 0;
         size_t kiekis = 0;
         int atlikimas = 0;
-        
+        if (konteineris == 1)
+        {
         for (int i = 0; i < bandymai; ++i)
         {
         vector <studentas> studentai, vargsiukai, kietiakai;
@@ -306,6 +307,45 @@ else if (meniu == 4)
         sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
         kiekis = studentai.size();
     
+        }
+        }
+        else 
+        {
+        for (int i = 0; i < bandymai; ++i)
+        {
+        list <studentas> studentai, vargsiukai, kietiakai;
+        auto t1 = std::chrono::high_resolution_clock::now();
+        if (!NuskaitytiFaila(failo_pavadinimas, studentai)) {
+            cout << "Nepavyko nuskaityti failo. Testas nutrauktas.\n";
+            break;
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> nuskaitymas = t2 - t1;
+        kiekis = studentai.size();
+
+        skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
+        auto t3 = std::chrono::high_resolution_clock::now();
+
+        rikiuotiStudentus(vargsiukai, rusiavimas, pasirinkimas);
+        rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
+        
+        auto t4 = std::chrono::high_resolution_clock::now();
+
+        IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
+        auto t5 = std::chrono::high_resolution_clock::now();
+
+        IrasytiIFaila("kietiakai.txt", kietiakai, pasirinkimas);
+        auto t6 = std::chrono::high_resolution_clock::now();
+            
+        sk_nuskaitymas += std::chrono::duration<double>(t2 - t1).count();
+        sk_skirstymas += std::chrono::duration<double>(t3 - t2).count();
+        sk_rusiavimas += std::chrono::duration<double>(t4 - t3).count();
+        sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
+        sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
+        sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
+        kiekis = studentai.size();
+    
+        }
         }
         if (bandymai == 1)
         {
