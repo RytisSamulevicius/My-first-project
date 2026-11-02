@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <utility>
 
 using std::string;
 using std::vector;
@@ -134,6 +135,26 @@ void skirstytiStudentus (const T& grupe, T& vargsiukai, T& kietiakai, int pasiri
             vargsiukai.push_back(s);
         else 
             kietiakai.push_back(s);
+    }
+}
+template <typename T>
+void skirstytiStudentus2(T& grupe T& vargsiukai, int pasirinkimas) {
+    vargsiukai.clear();
+
+    auto it = grupe.begin();
+    while (it != grupe.end()) {
+        double galutinis;
+        if (pasirinkimas == 1)
+            galutinis = it->vid_rez;
+        else
+            galutinis = it->med_rez;
+
+        if (galutinis < 5.0) {
+            vargsiukai.push_back(std::move(*it));
+            it = grupe.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 #endif
