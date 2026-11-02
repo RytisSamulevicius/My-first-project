@@ -236,6 +236,20 @@ else if (meniu == 4)
             cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
             continue;
         }
+        
+        int strategija;
+        cout << "Pasirinkite skirstymo strategija:\n";
+        cout << "1 - Pirmoji strategija (du nauji konteineriai)\n";
+        cout << "2 - Antroji strategija (vienas konteineris, is jo salinami vargsiukai)\n";
+        cin >> strategija;
+
+        if (cin.fail() || (strategija != 1 && strategija != 2)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
+
         int rusiavimas;
         cout << "Kaip rusiuoti rezultatus? 1 - pagal varda, 2 - pagal pavarde, 3 - pagal galutini bala: ";
         cin >> rusiavimas;
