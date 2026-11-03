@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 #include <iomanip>
 #include <numeric>
 #include <algorithm>
@@ -17,20 +18,19 @@
 
 using std::string;
 using std::vector;
+using std::list;
 using std::cin;
 using std::cout;
 using std::left;
 using std::right;
 using std::setw;
-
-int main()
+template <typename T>
+void ProgramosVeikimas()
 {
-  srand(time(0));
-
-  vector<studentas> grupe;
+  T grupe;
   studentas A;
   int meniu;
-  string failo_pavadinimas;
+  srand(time(0));
 
   while(true)
   {
@@ -40,7 +40,7 @@ int main()
   cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
   cout<<"5 - Sugeneruoti studentu failus\n";
-  cout<<"6 - Studentai isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
+  cout<<"6 - Studentus isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
   cout<<"7 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
@@ -133,6 +133,9 @@ int main()
        }
           skaiciavimas(A);
           grupe.push_back(A);
+          
+          cout << "Studento objekto adresas atmintyje: " << &grupe.back() << "\n";
+
           A.pavarde.clear();
           A.vardas.clear();
           A.paz.clear();
@@ -150,7 +153,7 @@ int main()
 }
 else if (meniu == 3)
 {
-    failo_pavadinimas = pasirinktiFaila();
+    string failo_pavadinimas = pasirinktiFaila();
     if (failo_pavadinimas.empty()) {
         cout << "Failas nerastas. Grizti prie meniu.\n";
         continue;
@@ -233,6 +236,20 @@ else if (meniu == 4)
             cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
             continue;
         }
+        
+        int strategija;
+        cout << "Pasirinkite skirstymo strategija:\n";
+        cout << "1 - Pirmoji strategija (du nauji konteineriai)\n";
+        cout << "2 - Antroji strategija (vienas konteineris, is jo salinami vargsiukai)\n";
+        cin >> strategija;
+
+        if (cin.fail() || (strategija != 1 && strategija != 2)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
+
         int rusiavimas;
         cout << "Kaip rusiuoti rezultatus? 1 - pagal varda, 2 - pagal pavarde, 3 - pagal galutini bala: ";
         cin >> rusiavimas;
@@ -257,37 +274,33 @@ else if (meniu == 4)
         double sk_nuskaitymas = 0, sk_skirstymas = 0, sk_rusiavimas = 0;
         double sk_rasymas_vargsiukai = 0, sk_rasymas_kietiakai = 0, sk_bendras_laikas = 0;
         size_t kiekis = 0;
-        int atlikimas = 0;
-        
+     
+        T studentai;
+        T vargsiukai;
+        T kietiakai;
         for (int i = 0; i < bandymai; ++i)
         {
-        vector <studentas> studentai, vargsiukai, kietiakai;
         auto t1 = std::chrono::high_resolution_clock::now();
         if (!NuskaitytiFaila(failo_pavadinimas, studentai)) {
             cout << "Nepavyko nuskaityti failo. Testas nutrauktas.\n";
             break;
         }
         auto t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> nuskaitymas = t2 - t1;
-        kiekis = studentai.size();
 
-        skirstyti(studentai, vargsiukai, kietiakai, pasirinkimas);
+        if (strategija == 1) {
+            skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
+        } else {
+            skirstytiStudentus2(studentai, vargsiukai, pasirinkimas);
+        }
+
         auto t3 = std::chrono::high_resolution_clock::now();
 
-        if(rusiavimas == 1){
-            std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalVarda);
-            std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalVarda);
-        }
-        else if(rusiavimas == 2){
-            std::sort(vargsiukai.begin(), vargsiukai.end(), lygintiPagalPavarde);
-            std::sort(kietiakai.begin(), kietiakai.end(), lygintiPagalPavarde);
-        }
-        else if(rusiavimas == 3){
-            std::sort(vargsiukai.begin(), vargsiukai.end(), [pasirinkimas](const studentas& a, const studentas& b) {
-                return lygintiPagalGalutiniBala(a, b, pasirinkimas);
-            });
-
-        }
+        rikiuotiStudentus(vargsiukai, rusiavimas, pasirinkimas);
+        if (strategija == 1) {
+            rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
+        } else {
+            rikiuotiStudentus(studentai, rusiavimas, pasirinkimas);
+        }       
         auto t4 = std::chrono::high_resolution_clock::now();
 
         IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
@@ -302,10 +315,11 @@ else if (meniu == 4)
         sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
         sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
         sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
-        kiekis = studentai.size();
-    
+        kiekis = vargsiukai.size() + kietiakai.size();
+        
         }
-        if (bandymas == 1)
+        
+        if (bandymai == 1)
         {
         cout << "\nFailas uzdarytas\n";
         cout << kiekis << " Irasu failo nuskaitymo laikas: " << sk_nuskaitymas  << " sekundžių\n";
@@ -325,15 +339,40 @@ else if (meniu == 4)
         cout << kiekis << " Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: " << sk_rasymas_kietiakai / bandymai << " sekundžių\n";    
         cout << kiekis << " Irasu bendras laiko vidurkis: " << sk_bendras_laikas / bandymai << " sekundžių\n"; 
         }
-        
-        
-   } 
+   }
+         
    else
    {
       cout << "Tokio pasirinkimo nera.\n";
    } 
   }
-  return 0;
-
 }
+int main()
+{
+    int pasirinkimas;
 
+    cout << "Pasirinkite konteineri:\n";
+    cout << "1 - vector\n";
+    cout << "2 - list\n";
+    cout << "Pasirinkimas: ";
+    cin >> pasirinkimas;
+
+    if (cin.fail())
+    {
+        cout << "Neteisingas pasirinkimas.\n";
+        return 1;
+    }
+    if (pasirinkimas == 1)
+    {
+        ProgramosVeikimas<vector<studentas>>();
+    }
+    else if (pasirinkimas == 2)
+    {
+        ProgramosVeikimas<list<studentas>>();
+    }
+    else
+    {
+        cout << "Pasirinkite 1 arba 2.\n";
+        return 1;
+    }
+}
