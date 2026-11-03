@@ -290,15 +290,17 @@ else if (meniu == 4)
         if (strategija == 1) {
             skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
         } else {
-            skirstytiStudentus(studentai, vargsiukai, pasirinkimas);
-            kietiakai = studentai;
+            skirstytiStudentus2(studentai, vargsiukai, pasirinkimas);
         }
 
         auto t3 = std::chrono::high_resolution_clock::now();
 
         rikiuotiStudentus(vargsiukai, rusiavimas, pasirinkimas);
-        rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
-        
+        if (strategija == 1) {
+            rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
+        } else {
+            rikiuotiStudentus(studentai, rusiavimas, pasirinkimas);
+        }       
         auto t4 = std::chrono::high_resolution_clock::now();
 
         IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
@@ -313,7 +315,7 @@ else if (meniu == 4)
         sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
         sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
         sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
-        kiekis = studentai.size();
+        kiekis = vargsiukai.size() + kietiakai.size();
         
         }
         
