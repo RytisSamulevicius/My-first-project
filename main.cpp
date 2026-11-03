@@ -287,7 +287,12 @@ else if (meniu == 4)
         }
         auto t2 = std::chrono::high_resolution_clock::now();
 
-        skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
+        if (strategija == 1) {
+            skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
+        } else {
+            skirstytiStudentus(studentai, vargsiukai, pasirinkimas);
+            kietiakai = studentai;
+        }
 
         auto t3 = std::chrono::high_resolution_clock::now();
 
