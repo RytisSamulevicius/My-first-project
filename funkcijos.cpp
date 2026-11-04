@@ -150,3 +150,27 @@ void rikiuotiStudentus(std::list<studentas>& grupe, int rusiavimas, int pasirink
         });
     }
 }
+void skirstytiStudentus3(std::vector<studentas>& grupe, std::vector<studentas>& vargsiukai, int pasirinkimas) 
+{
+    vargsiukai.clear();
+
+    auto limitas = std::partition(grupe.begin(), grupe.end(), 
+    [pasirinkimas](const studentas& s) {
+        double galutinis;
+        if (pasirinkimas == 1)
+            galutinis = s.vid_rez;
+        else
+            galutinis = s.med_rez;
+
+        return galutinis < 5.0;
+    });
+
+    vargsiukai.insert(vargsiukai.end(),
+        std::make_move_iterator(grupe.begin()), 
+        std::make_move_iterator(limitas));
+        
+    grupe.erase(grupe.begin(), limitas);
+}
+            
+        
+    

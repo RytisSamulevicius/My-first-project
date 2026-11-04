@@ -28,7 +28,8 @@ bool lygintiPagalPavarde(const studentas& a, const studentas& b);
 bool lygintiPagalGalutiniBala(const studentas& a, const studentas& b, int pasirinkimas);
 void rikiuotiStudentus(std::vector<studentas>&grupe, int rusiavimas, int pasirinkimas);
 void rikiuotiStudentus(std::list<studentas>&grupe, int rusiavimas, int pasirinkimas);
-
+void skirstytiStudentus3(std::vector<studentas>& grupe, std::vector<studentas>& vargsiukai, int pasirinkimas);
+void skirstytiStudentus3(std::list<studentas>& grupe, std::list<studentas>& vargsiukai, int pasirinkimas);
 
 template <typename T>
 bool NuskaitytiFaila(const std::string & failo_pavadinimas, T& grupe)
@@ -138,7 +139,7 @@ void skirstytiStudentus (const T& grupe, T& vargsiukai, T& kietiakai, int pasiri
     }
 }
 template <typename T>
-void skirstytiStudentus2(T& grupe T& vargsiukai, int pasirinkimas) {
+void skirstytiStudentus2(T& grupe, T& vargsiukai, int pasirinkimas) {
     vargsiukai.clear();
 
     auto it = grupe.begin();
