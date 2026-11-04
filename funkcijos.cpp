@@ -168,9 +168,33 @@ void skirstytiStudentus3(std::vector<studentas>& grupe, std::vector<studentas>& 
     vargsiukai.insert(vargsiukai.end(),
         std::make_move_iterator(grupe.begin()), 
         std::make_move_iterator(limitas));
-        
+
     grupe.erase(grupe.begin(), limitas);
 }
-            
+void skirstytiStudentus3(std::list<studentas>& grupe, std::list<studentas>& vargsiukai, int pasirinkimas) 
+{
+    vargsiukai.clear();
+
+    auto it = grupe.begin();
+    while (it != grupe.end()) {
+        double galutinis;
+        if (pasirinkimas == 1)
+            galutinis = it->vid_rez;
+        else
+            galutinis = it->med_rez;
+
+        if (galutinis < 5.0) {
+            auto dabartinis = it;
+            ++it;
+            vargsiukai.splice(vargsiukai.end(), grupe, dabartinis);
+        }
+        else {
+            ++it;
+        }
+    }
+}
+        
+  
+    
         
     
