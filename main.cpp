@@ -41,7 +41,8 @@ void ProgramosVeikimas()
   cout<<"4 - Rodyti rezultatus\n";
   cout<<"5 - Sugeneruoti studentu failus\n";
   cout<<"6 - Studentus isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
-  cout<<"7 - Baigti darba\n";
+  cout<<"7 - Palyginti triju studentu skirstymo strategiju veikimo sparta\n";
+  cout<<"8 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
 
@@ -49,7 +50,7 @@ void ProgramosVeikimas()
     {
         cin.clear();
         cin.ignore(10000, '\n');
-        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 7.\n";
+        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 8.\n";
         continue;
     }
 
@@ -237,19 +238,6 @@ else if (meniu == 4)
             continue;
         }
         
-        int strategija;
-        cout << "Pasirinkite skirstymo strategija:\n";
-        cout << "1 - Pirmoji strategija (du nauji konteineriai)\n";
-        cout << "2 - Antroji strategija (vienas konteineris, is jo salinami vargsiukai)\n";
-        cin >> strategija;
-
-        if (cin.fail() || (strategija != 1 && strategija != 2)) {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
-            continue;
-        }
-
         int rusiavimas;
         cout << "Kaip rusiuoti rezultatus? 1 - pagal varda, 2 - pagal pavarde, 3 - pagal galutini bala: ";
         cin >> rusiavimas;
@@ -286,21 +274,12 @@ else if (meniu == 4)
             break;
         }
         auto t2 = std::chrono::high_resolution_clock::now();
-
-        if (strategija == 1) {
-            skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
-        } else {
-            skirstytiStudentus2(studentai, vargsiukai, pasirinkimas);
-        }
-
+        skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
+        
         auto t3 = std::chrono::high_resolution_clock::now();
-
         rikiuotiStudentus(vargsiukai, rusiavimas, pasirinkimas);
-        if (strategija == 1) {
-            rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
-        } else {
-            rikiuotiStudentus(studentai, rusiavimas, pasirinkimas);
-        }       
+        rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
+
         auto t4 = std::chrono::high_resolution_clock::now();
 
         IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
@@ -308,15 +287,14 @@ else if (meniu == 4)
 
         IrasytiIFaila("kietiakai.txt", kietiakai, pasirinkimas);
         auto t6 = std::chrono::high_resolution_clock::now();
-            
+
         sk_nuskaitymas += std::chrono::duration<double>(t2 - t1).count();
         sk_skirstymas += std::chrono::duration<double>(t3 - t2).count();
         sk_rusiavimas += std::chrono::duration<double>(t4 - t3).count();
         sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
         sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
         sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
-        kiekis = vargsiukai.size() + kietiakai.size();
-        
+        kiekis = studentai.size();
         }
         
         if (bandymai == 1)
@@ -339,6 +317,14 @@ else if (meniu == 4)
         cout << kiekis << " Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: " << sk_rasymas_kietiakai / bandymai << " sekundžių\n";    
         cout << kiekis << " Irasu bendras laiko vidurkis: " << sk_bendras_laikas / bandymai << " sekundžių\n"; 
         }
+   }
+   else if (meniu == 7)
+   {
+        cout << "\n=== Triju strategiju rusiavimo laiko palyginimas ===\n";
+
+        string failo_pavadinimas = pasirinktiFaila();
+        if (failo_pavadinimas.empty()) continue;
+        
    }
          
    else
