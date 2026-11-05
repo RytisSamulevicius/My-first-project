@@ -1,5 +1,17 @@
 # Studentų rezultatų apdorojimo programa
 
+## V0.1 – pradinė programos versija
+
+Šioje versijoje sukurta pradinė studentų rezultatų apdorojimo programa. Padaryta galimybė įvesti studentų duomenis rankiniu būdu arba generuoti juos atsitiktinai. Programa apskaičiuoja galutinius pažymius pagal namų darbų vidurkį arba medianą ir egzamino rezultatą. Taip pat galima išvesti studentų rezultatus į ekraną.
+
+## V0.2 – darbas su failais ir duomenų generavimas
+
+Šioje versijoje programa papildyta galimybe nuskaityti studentų duomenis iš failų bei automatiškai generuoti skirtingo dydžio duomenų rinkinius. Studentai suskirstomi į dvi grupes pagal galutinį pažymį: „vargšiukus“ (mažiau nei 5) ir „kietiakius“ (5 ir daugiau). Rezultatai įrašomi į atskirus failus. Taip pat pridėta studentų rūšiavimo pagal vardą, pavardę arba galutinį pažymį galimybė.
+
+## Testavimų aprašymas
+
+V0.1 ir V0.2 versijose pagrindinis dėmesys buvo skiriamas programos funkcionalumui. Buvo tikrinama, ar teisingai įvedami ir generuojami duomenys, apskaičiuojami galutiniai pažymiai, suskirstomi studentai į grupes bei nuskaitomi ir įrašomi failai. Taip pat tikrintas rūšiavimo veikimas. Šiose versijose pagrindinis tikslas buvo užtikrinti, kad visos pagrindinės programos funkcijos veiktų teisingai.
+
 ## V0.3 – konteinerių našumo palyginimas
 
 Šioje versijoje nagrinėjamas dviejų C++ konteinerių – `vector` ir `list` – našumas apdorojant skirtingą studentų duomenų kiekį. Pagrindinis tikslas – išsiaiškinti, kaip keičiasi programos vykdymo laikas didėjant įrašų skaičiui ir kuris konteineris efektyvesnis šioje realizacijoje.
