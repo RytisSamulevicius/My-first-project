@@ -54,7 +54,7 @@ void ProgramosVeikimas()
         continue;
     }
 
-  if (meniu == 7) 
+  if (meniu == 8) 
   {
     cout << "Programa baigia darba.\n";
     break;
@@ -324,9 +324,81 @@ else if (meniu == 4)
 
         string failo_pavadinimas = pasirinktiFaila();
         if (failo_pavadinimas.empty()) continue;
+
+        int pasirinkimas;
+        cout << "\nPasirinkite skirstymo buda:\n";
+        cout << "1 - pagal vidurki\n";
+        cout << "2 - pagal mediana\n";
+        cout << "Pasirinkimas: ";
+        cin >> pasirinkimas;
+
+        if (cin.fail() || (pasirinkimas != 1 && pasirinkimas != 2)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
+
+        int bandymai;
+        cout << "Kiek kartų atlikti testą? ";
+        cin >> bandymai;
+
+        if (cin.fail() || bandymai <= 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite teigiamą sveiką skaičių.\n";
+            continue;
+        }
+
+        double laikas1 = 0;
+        double laikas2 = 0;
+        double laikas3 = 0;
         
+        T pradineGrupe;
+
+        NuskaitytiFaila(failo_pavadinimas, pradineGrupe);
+
+        size_t kiekis = pradineGrupe.size();
+
+        for (int i = 0; i < bandymai; ++i)
+        {
+            T studentai1 = pradineGrupe;
+            T studentai2 = pradineGrupe;
+            T studentai3 = pradineGrupe;
+
+            T vargsiukai1, kietiakai1;
+
+            T vargsiukai2;
+
+            T vargsiukai3;
+
+            auto pradzia1 = std::chrono::high_resolution_clock::now();
+            skirstytiStudentus(studentai1, vargsiukai1, kietiakai1, pasirinkimas);
+            auto pabaiga1 = std::chrono::high_resolution_clock::now();
+            laikas1 += std::chrono::duration<double>(pabaiga1 - pradzia1).count();  
+
+
+            auto pradzia2 = std::chrono::high_resolution_clock::now();
+            skirstytiStudentus2(studentai2, vargsiukai2, pasirinkimas);
+            auto pabaiga2 = std::chrono::high_resolution_clock::now();
+            laikas2 += std::chrono::duration<double>(pabaiga2 - pradzia2).count();  
+
+
+            auto pradzia3 = std::chrono::high_resolution_clock::now();
+            skirstytiStudentus3(studentai3, vargsiukai3, pasirinkimas);
+            auto pabaiga3 = std::chrono::high_resolution_clock::now();
+            laikas3 += std::chrono::duration<double>(pabaiga3 - pradzia3).count();  
+
+        }
+        cout << "\n=== Rezultatai ===\n";
+        cout << "Studentu kiekis: " << kiekis << "\n";
+        cout << "Bandymai: " << bandymai << "\n";
+
+        cout << std::fixed << std::setprecision(6);
+        cout << "1 strategijos vidutinis laikas: " << laikas1 / bandymai << " sekundžių\n";
+        cout << "2 strategijos vidutinis laikas: " << laikas2 / bandymai << " sekundžių\n";
+        cout << "3 strategijos vidutinis laikas: " << laikas3 / bandymai << " sekundžių\n";
    }
-         
    else
    {
       cout << "Tokio pasirinkimo nera.\n";
