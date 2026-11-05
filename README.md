@@ -93,3 +93,109 @@ Lentelėje pateikti 3 bandymų vidurkiai sekundėmis.
 - Didėjant įrašų skaičiui, rūšiavimo našumo skirtumas tapo ypač reikšmingas.
 - Nuskaitymo ir skirstymo operacijų laikai abiem atvejais buvo panašūs.
 - Apdorojant 10 milijonų studentų, `list` visą procesą atliko maždaug 15,38 sekundės greičiau nei `vector`.
+  
+
+# V1.0 – trijų studentų skirstymo strategijų palyginimas
+
+## Tyrimo tikslas
+
+Šioje versijoje tiriama trijų studentų skirstymo strategijų veikimo sparta naudojant du C++ konteinerius – `vector` ir `list`.
+
+Pagrindinis tikslas – palyginti, kaip skirtingi studentų skirstymo algoritmai veikia didėjant duomenų kiekiui ir kuris strategijos bei konteinerio derinys yra efektyviausias.
+
+## Testavimo metodika
+
+Testavimui naudoti studentų duomenų failai, kuriuose yra 1 tūkst., 10 tūkst., 100 tūkst., 1 mln. ir 10 mln. studentų įrašų.
+
+Kiekvienas bandymas kartotas 3 kartus. Lentelėse pateikiamas vidutinis vykdymo laikas sekundėmis.
+
+Studentai buvo skirstomi pagal galutinį pažymį, apskaičiuotą naudojant namų darbų vidurkį. Studentai, kurių galutinis rezultatas mažesnis nei 5, priskirti vargšiukų kategorijai, o likusieji – kietiakių kategorijai.
+
+## Skirstymo strategijos
+
+**1 strategija – du nauji konteineriai**
+
+Sukuriami du nauji konteineriai. Pereinant per pradinį studentų konteinerį, studentai nukopijuojami į atitinkamą naują konteinerį. Pradinis konteineris lieka nepakeistas.
+
+**2 strategija – perkėlimas ir ištrynimas**
+
+Studentai, kurių galutinis rezultatas mažesnis nei 5, perkeliami į vargšiukų konteinerį ir pašalinami iš pradinio konteinerio.
+
+**3 strategija – optimizuota antroji strategija**
+
+Naudojami efektyvesni konteineriams pritaikyti metodai: `vector` atveju – `std::partition`, o `list` atveju – `splice`.
+
+## Testavimo rezultatai
+
+### `std::vector`
+
+| Studentų skaičius | 1 strategija (s) | 2 strategija (s) | 3 strategija (s) |
+|---:|---:|---:|---:|
+| 1 000 | 0.000551 | 0.023564 | 0.000196 |
+| 10 000 | 0.003539 | 1.663933 | 0.001520 |
+| 100 000 | 0.031769 | 194.691112 | 0.015567 |
+| 1 000 000 | – | – | – |
+| 10 000 000 | – | – | – |
+
+Pastaba: `vector` bandymai su 1 mln. ir 10 mln. studentų neatlikti, nes antroji strategija jau su 100 tūkst. studentų užtruko apie 194,69 sekundės.
+
+### `std::list`
+
+| Studentų skaičius | 1 strategija (s) | 2 strategija (s) | 3 strategija (s) |
+|---:|---:|---:|---:|
+| 1 000 | 0.000454 | 0.000176 | 0.000045 |
+| 10 000 | 0.002478 | 0.000921 | 0.000227 |
+| 100 000 | 0.022067 | 0.008573 | 0.001993 |
+| 1 000 000 | 0.221428 | 0.085427 | 0.019791 |
+| 10 000 000 | 2.762302 | 0.874625 | 0.221727 |
+
+## Rezultatų analizė
+
+**Pirmoji strategija.** Naudojant abu konteinerius, pirmosios strategijos vykdymo laikas didėja proporcingai duomenų kiekiui. Ši strategija kiekvieną studentą nukopijuoja į vieną iš dviejų naujų konteinerių.
+
+**Antroji strategija.** Naudojant `vector`, ši strategija pasirodė labai lėta. Taip yra todėl, kad šalinant elementus iš `vector` vidurio reikia perkelti po jų esančius elementus. Didėjant studentų skaičiui, šis procesas tampa vis brangesnis. Naudojant `list`, elementų šalinimas yra efektyvesnis, todėl vykdymo laikas gerokai mažesnis.
+
+**Trečioji strategija.** Visuose atliktuose bandymuose ši strategija buvo greičiausia. Tai rodo, kad tinkamai parinkti konteinerių metodai leidžia gerokai sumažinti skirstymo laiką.
+
+## Testavimo nuotraukos
+
+# Vector su 1000
+
+<img width="902" height="698" alt="image" src="https://github.com/user-attachments/assets/354e58e6-b54e-4dcf-b629-2c796f1fc4bb" />
+
+# List su 1000
+<img width="1006" height="690" alt="image" src="https://github.com/user-attachments/assets/00ecb7db-b7c3-483b-ada8-3799583af208" />
+
+# Vector su 10000
+
+<img width="926" height="694" alt="image" src="https://github.com/user-attachments/assets/eed0c4dd-9ef1-42e0-900a-82ede9550618" />
+
+# List su 10000
+
+<img width="928" height="710" alt="image" src="https://github.com/user-attachments/assets/35a0e30b-595f-4d6e-b914-32cb2fa1ea0a" />
+
+# Vector su 100000
+
+<img width="996" height="690" alt="image" src="https://github.com/user-attachments/assets/8a1080fc-3a03-4317-9346-be016126d9ac" />
+
+# List su 100000
+
+<img width="992" height="698" alt="image" src="https://github.com/user-attachments/assets/dcda0fcd-ab8e-4dfa-a68c-dbd912a2df58" />
+
+# List su 1000000
+
+<img width="980" height="682" alt="image" src="https://github.com/user-attachments/assets/bd67318d-3c64-4ca6-9e57-a5750a9d1f9f" />
+
+# List su 10000000
+
+<img width="996" height="680" alt="image" src="https://github.com/user-attachments/assets/67fb3172-0124-48b0-94a2-76a6dc376cb2" />
+
+## Galutinės išvados
+
+- Trečioji strategija buvo greičiausia tiek naudojant `vector`, tiek naudojant `list`.
+- Naudojant `vector`, antroji strategija buvo ypač neefektyvi dėl elementų šalinimo iš vidurio.
+- Naudojant `list`, antroji strategija veikė gerokai greičiau nei su `vector`.
+- Trečioji strategija pasiekė geriausius rezultatus net ir apdorojant 10 mln. studentų naudojant `list`.
+- Tyrimas parodė, kad ne tik konteinerio pasirinkimas, bet ir jo elementų apdorojimo būdas turi didelę įtaką programos veikimo spartai.
+
+**Bendra išvada:** iš trijų tirtų strategijų trečioji yra efektyviausia pagal atliktų bandymų rezultatus.
