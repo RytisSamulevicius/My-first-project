@@ -1,3 +1,4 @@
+```gitignore
 # Prerequisites
 *.d
 
@@ -22,7 +23,6 @@
 *.dylib
 *.dll
 *.so.*
-
 
 # Fortran module files
 *.mod
@@ -61,10 +61,10 @@ compile_commands.json
 # vcpkg
 vcpkg_installed/
 
-# debug information files
+# Debug information files
 *.dwo
 
-# test output & cache
+# Test output and cache
 Testing/
 .cache/
 
@@ -73,3 +73,15 @@ Testing/
 
 # VS Code
 .vscode/
+
+# Programos vykdymo metu sukurti failai
+programa
+funkcijos
+studentas
+kietiakai.txt
+vargsiukai.txt
+rezultatai.txt
+
+# Testiniai duomenu failai
+studentai*.txt
+stud*.txt
