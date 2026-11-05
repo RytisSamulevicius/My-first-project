@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 #include <iomanip>
 #include <numeric>
 #include <algorithm>
@@ -10,33 +11,26 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+#include <chrono>
+#include "generavimas.h"
+#include "studentas.h"
+#include "funkcijos.h"
 
 using std::string;
 using std::vector;
+using std::list;
 using std::cin;
 using std::cout;
 using std::left;
 using std::right;
 using std::setw;
-
-struct studentas{
-    string vardas, pavarde;
-    vector<int> paz;
-    int exam;
-    double vid_rez, med_rez;
-};
-string pasirinktiFaila();
-void printas(const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde);
-void skaiciavimas( studentas& B);
-bool lygintiPagalVarda(const studentas& a, const studentas& b);
-int main()
+template <typename T>
+void ProgramosVeikimas()
 {
-  srand(time(0));
-
-  vector<studentas> grupe;
+  T grupe;
   studentas A;
   int meniu;
-  string failo_pavadinimas;
+  srand(time(0));
 
   while(true)
   {
@@ -45,7 +39,10 @@ int main()
   cout<<"2 - Generuoti studentu pazymius atsitiktinai\n";
   cout<<"3 - Nuskaityti is pasirinkto failo\n";
   cout<<"4 - Rodyti rezultatus\n";
-  cout<<"5 - Baigti darba\n";
+  cout<<"5 - Sugeneruoti studentu failus\n";
+  cout<<"6 - Studentus isvesti i du naujus failus vargsiukai.txt ir kietiakai.txt, bei atlikti programos veikimo analize\n";
+  cout<<"7 - Palyginti triju studentu skirstymo strategiju veikimo sparta\n";
+  cout<<"8 - Baigti darba\n";
   cout<< "Meniu pasirinkimas: ";
   cin>>meniu;
 
@@ -53,11 +50,11 @@ int main()
     {
         cin.clear();
         cin.ignore(10000, '\n');
-        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 5.\n";
+        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 1 iki 8.\n";
         continue;
     }
 
-  if (meniu == 5) 
+  if (meniu == 8) 
   {
     cout << "Programa baigia darba.\n";
     break;
@@ -137,6 +134,9 @@ int main()
        }
           skaiciavimas(A);
           grupe.push_back(A);
+          
+          cout << "Studento objekto adresas atmintyje: " << &grupe.back() << "\n";
+
           A.pavarde.clear();
           A.vardas.clear();
           A.paz.clear();
@@ -154,58 +154,13 @@ int main()
 }
 else if (meniu == 3)
 {
-    failo_pavadinimas = pasirinktiFaila();
+    string failo_pavadinimas = pasirinktiFaila();
     if (failo_pavadinimas.empty()) {
         cout << "Failas nerastas. Grizti prie meniu.\n";
         continue;
     }
-    std::ifstream failas (failo_pavadinimas);
-    if (!failas.is_open()){
-        cout << "Nepavyko atidaryti failo " << failo_pavadinimas << "\n";
-        continue;
-    }
-
-    grupe.clear();
-    string eilute;
-    std::getline(failas, eilute);
-
-    while(std::getline(failas, eilute))
-    {
-        std::istringstream s(eilute);
-        studentas S;
-        s >> S.vardas >> S.pavarde;
-
-        vector<int> rezultatai;
-
-        string x;
-
-        while(s >> x)
-        {
-            if(x != "1" && x != "2" && x != "3" && x != "4" && 
-                x != "5" && x != "6" && x != "7" && x != "8" &&
-                x != "9" && x != "10")
-             {
-                cout << "Klaida faile: " << eilute << "'\n";
-                rezultatai.clear();
-                break;
-             }
-            rezultatai.push_back(std::stoi(x));
-        }
-        if (rezultatai.empty()) continue;
-
-        S.exam = rezultatai.back();
-        rezultatai.pop_back();
-        S.paz = rezultatai;
-
-        skaiciavimas(S);
-
-        grupe.push_back(std::move(S));
-        
-    }
-    failas.close();
-
-    std::sort(grupe.begin(), grupe.end(), lygintiPagalVarda);
-  }
+    NuskaitytiFaila(failo_pavadinimas, grupe);
+ }
 
 else if (meniu == 4)
 {
@@ -233,117 +188,249 @@ else if (meniu == 4)
     }
     int w_vardas = static_cast<int>(max_vardas) + 2;
     int w_pavarde = static_cast<int>(max_pavarde) + 2;
-
-    cout<<"\nStudentu duom.: \n";
-    cout<<"|"<<left<<setw(w_vardas)<<"Vardas"<<"|"<<left<<setw(w_pavarde)<<"Pavarde";
+    
+    std::ofstream rezultatufailas("rezultatai.txt");
+    if (!rezultatufailas.is_open()) {
+        cout << "Nepavyko sukurti rezultatai.txt failo.\n";
+        continue;
+    }
+    rezultatufailas<<"\nStudentu duom.: \n";
+    rezultatufailas<<"|"<<left<<setw(w_vardas)<<"Vardas"<<"|"<<left<<setw(w_pavarde)<<"Pavarde";
     if (pasirinkimas==1)
-        cout<<"|"<<right<<setw(10)<<"Gal.(vid)";
+        rezultatufailas<<"|"<<right<<setw(10)<<"Gal.(vid)";
     else if (pasirinkimas==2)
-        cout<<"|"<<right<<setw(10)<<"Gal.(med)";
+        rezultatufailas<<"|"<<right<<setw(10)<<"Gal.(med)";
     else
-        cout<<"|"<<right<<setw(10)<<"Gal.(vid)"<<"|"<<right<<setw(10)<<"Gal.(med)";
-    cout<<"|\n";
+        rezultatufailas<<"|"<<right<<setw(10)<<"Gal.(vid)"<<"|"<<right<<setw(10)<<"Gal.(med)";
+    rezultatufailas<<"|\n";
 
     int br = w_vardas + w_pavarde + 10 + 3;
     int br1= w_vardas + w_pavarde + 10 + 10 + 4;
 
     if (pasirinkimas==1 || pasirinkimas==2) {
-        for (int i=0;i<br;i++) cout<<"-";
+        for (int i=0;i<br;i++) rezultatufailas<<"-";
     } else {
-         for (int i=0;i<br1;i++) cout<<"-";
+         for (int i=0;i<br1;i++) rezultatufailas<<"-";
     }
-    cout<<"|\n";
+    rezultatufailas<<"|\n";
 
-    for(const studentas& B:grupe) printas(B, pasirinkimas, w_vardas, w_pavarde);
- }
- else
-     cout << "Tokio pasirinkimo nera.\n";
- }
+    for(const studentas& B:grupe) printas(rezultatufailas, B, pasirinkimas, w_vardas, w_pavarde);
+    rezultatufailas.close();
+    cout << "Rezultatai issaugoti faile rezultatai.txt\n";
+   }
+   else if (meniu == 5)
+   {
+      generuotiVisusFailus();
+   }
+   else if (meniu == 6)
+   {
+        string failo_pavadinimas = pasirinktiFaila();
+        if (failo_pavadinimas.empty()) continue;
+
+        int pasirinkimas;
+        cout << "Pagal ka skirstyti? 1 - pagal vidurki, 2 - pagal mediana: ";
+        cin >> pasirinkimas;
+
+        if (cin.fail() || (pasirinkimas != 1 && pasirinkimas != 2)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
+        
+        int rusiavimas;
+        cout << "Kaip rusiuoti rezultatus? 1 - pagal varda, 2 - pagal pavarde, 3 - pagal galutini bala: ";
+        cin >> rusiavimas;
+
+        if (cin.fail() || (rusiavimas != 1 && rusiavimas != 2 && rusiavimas != 3)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1, 2 arba 3.\n";
+            continue;
+        }  
+        
+        int bandymai;
+        cout << "Kiek kartų atlikti testą? ";
+        cin >> bandymai;
+        if (cin.fail() || bandymai <= 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite teigiamą sveiką skaičių.\n";
+            continue;
+        }
+
+        double sk_nuskaitymas = 0, sk_skirstymas = 0, sk_rusiavimas = 0;
+        double sk_rasymas_vargsiukai = 0, sk_rasymas_kietiakai = 0, sk_bendras_laikas = 0;
+        size_t kiekis = 0;
+     
+        T studentai;
+        T vargsiukai;
+        T kietiakai;
+        for (int i = 0; i < bandymai; ++i)
+        {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        if (!NuskaitytiFaila(failo_pavadinimas, studentai)) {
+            cout << "Nepavyko nuskaityti failo. Testas nutrauktas.\n";
+            break;
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        skirstytiStudentus(studentai, vargsiukai, kietiakai, pasirinkimas);
+        
+        auto t3 = std::chrono::high_resolution_clock::now();
+        rikiuotiStudentus(vargsiukai, rusiavimas, pasirinkimas);
+        rikiuotiStudentus(kietiakai, rusiavimas, pasirinkimas);
+
+        auto t4 = std::chrono::high_resolution_clock::now();
+
+        IrasytiIFaila("vargsiukai.txt", vargsiukai, pasirinkimas);
+        auto t5 = std::chrono::high_resolution_clock::now();
+
+        IrasytiIFaila("kietiakai.txt", kietiakai, pasirinkimas);
+        auto t6 = std::chrono::high_resolution_clock::now();
+
+        sk_nuskaitymas += std::chrono::duration<double>(t2 - t1).count();
+        sk_skirstymas += std::chrono::duration<double>(t3 - t2).count();
+        sk_rusiavimas += std::chrono::duration<double>(t4 - t3).count();
+        sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
+        sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
+        sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
+        kiekis = studentai.size();
+        }
+        
+        if (bandymai == 1)
+        {
+        cout << "\nFailas uzdarytas\n";
+        cout << kiekis << " Irasu failo nuskaitymo laikas: " << sk_nuskaitymas  << " sekundžių\n";
+        cout << kiekis << " Irasu studentu skirstymo i dvi grupes laikas: " << sk_skirstymas  << " sekundžių\n";
+        cout << kiekis << " Irasu studentu rusiavimo laikas: " << sk_rusiavimas  << " sekundžių\n";
+        cout << kiekis << " Irasu rezultatu irasymas i vargsiukai.txt: " << sk_rasymas_vargsiukai  << " sekundžių\n";     
+        cout << kiekis << " Irasu rezultatu irasymas i kietiakai.txt: " << sk_rasymas_kietiakai  << " sekundžių\n";    
+        cout << kiekis << " Irasu bendras laikas: " << sk_bendras_laikas  << " sekundžių\n"; 
+        }
+        else 
+        {
+        cout << "\nFailas uzdarytas\n";
+        cout << kiekis << " Irasu failo nuskaitymo laiko vidurkis: " << sk_nuskaitymas / bandymai << " sekundžių\n";
+        cout << kiekis << " Irasu studentu skirstymo i dvi grupes laiko vidurkis: " << sk_skirstymas / bandymai << " sekundžių\n";
+        cout << kiekis << " Irasu studentu rusiavimo laiko vidurkis: " << sk_rusiavimas / bandymai << " sekundžių\n";
+        cout << kiekis << " Irasu rezultatu irasymas i vargsiukai.txt laiko vidurkis: " << sk_rasymas_vargsiukai / bandymai << " sekundžių\n";     
+        cout << kiekis << " Irasu rezultatu irasymas i kietiakai.txt laiko vidurkis: " << sk_rasymas_kietiakai / bandymai << " sekundžių\n";    
+        cout << kiekis << " Irasu bendras laiko vidurkis: " << sk_bendras_laikas / bandymai << " sekundžių\n"; 
+        }
+   }
+   else if (meniu == 7)
+   {
+        cout << "\n=== Triju strategiju rusiavimo laiko palyginimas ===\n";
+
+        string failo_pavadinimas = pasirinktiFaila();
+        if (failo_pavadinimas.empty()) continue;
+
+        int pasirinkimas;
+        cout << "\nPasirinkite skirstymo buda:\n";
+        cout << "1 - pagal vidurki\n";
+        cout << "2 - pagal mediana\n";
+        cout << "Pasirinkimas: ";
+        cin >> pasirinkimas;
+
+        if (cin.fail() || (pasirinkimas != 1 && pasirinkimas != 2)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite 1 arba 2.\n";
+            continue;
+        }
+
+        int bandymai;
+        cout << "Kiek kartų atlikti testą? ";
+        cin >> bandymai;
+
+        if (cin.fail() || bandymai <= 0) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Neteisingas pasirinkimas. Iveskite teigiamą sveiką skaičių.\n";
+            continue;
+        }
+
+        double laikas1 = 0;
+        double laikas2 = 0;
+        double laikas3 = 0;
+        
+        T pradineGrupe;
+
+        NuskaitytiFaila(failo_pavadinimas, pradineGrupe);
+
+        size_t kiekis = pradineGrupe.size();
+
+        for (int i = 0; i < bandymai; ++i)
+        {
+            T studentai1 = pradineGrupe;
+            T studentai2 = pradineGrupe;
+            T studentai3 = pradineGrupe;
+
+            T vargsiukai1, kietiakai1;
+
+            T vargsiukai2;
+
+            T vargsiukai3;
+
+            auto pradzia1 = std::chrono::high_resolution_clock::now();
+            skirstytiStudentus(studentai1, vargsiukai1, kietiakai1, pasirinkimas);
+            auto pabaiga1 = std::chrono::high_resolution_clock::now();
+            laikas1 += std::chrono::duration<double>(pabaiga1 - pradzia1).count();  
+
+
+            auto pradzia2 = std::chrono::high_resolution_clock::now();
+            skirstytiStudentus2(studentai2, vargsiukai2, pasirinkimas);
+            auto pabaiga2 = std::chrono::high_resolution_clock::now();
+            laikas2 += std::chrono::duration<double>(pabaiga2 - pradzia2).count();  
+
+
+            auto pradzia3 = std::chrono::high_resolution_clock::now();
+            skirstytiStudentus3(studentai3, vargsiukai3, pasirinkimas);
+            auto pabaiga3 = std::chrono::high_resolution_clock::now();
+            laikas3 += std::chrono::duration<double>(pabaiga3 - pradzia3).count();  
+
+        }
+        cout << "\n=== Rezultatai ===\n";
+        cout << "Studentu kiekis: " << kiekis << "\n";
+        cout << "Bandymai: " << bandymai << "\n";
+
+        cout << std::fixed << std::setprecision(6);
+        cout << "1 strategijos vidutinis laikas: " << laikas1 / bandymai << " sekundžių\n";
+        cout << "2 strategijos vidutinis laikas: " << laikas2 / bandymai << " sekundžių\n";
+        cout << "3 strategijos vidutinis laikas: " << laikas3 / bandymai << " sekundžių\n";
+   }
+   else
+   {
+      cout << "Tokio pasirinkimo nera.\n";
+   } 
+  }
 }
-string pasirinktiFaila()
+int main()
 {
     int pasirinkimas;
 
-    while (true)
+    cout << "Pasirinkite konteineri:\n";
+    cout << "1 - vector\n";
+    cout << "2 - list\n";
+    cout << "Pasirinkimas: ";
+    cin >> pasirinkimas;
+
+    if (cin.fail())
     {
-        cout << "\n -----Pasirinkite faila:-----\n";
-        cout << "1 - kursiokai.txt\n";
-        cout << "2 - studentai10000.txt\n";
-        cout << "3 - studentai100000.txt\n";
-        cout << "4 - studentai1000000.txt\n";
-        cout << "5 - Iveskite failo pavadinima paciam\n";
-        cout << "0 - atsaukti\n";
-        cout << "Pasirinkimas: ";
-        cin >> pasirinkimas;
-    
-    
-        if (cin.fail()) 
-        {
-           cin.clear();
-           cin.ignore(10000, '\n');
-           cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 0 iki 5.\n";
-           continue;
-        }
-
-        switch (pasirinkimas)
-         {
-            case 1:
-                return "kursiokai.txt";
-            case 2:
-                return "studentai10000.txt";
-            case 3:
-                return "studentai100000.txt";
-            case 4:
-                return "studentai1000000.txt";
-            case 5:
-            {
-                string failo_pavadinimas;
-                cout << "Iveskite failo pavadinima: ";
-                cin >> failo_pavadinimas;
-                return failo_pavadinimas;
-            }
-            case 0:
-                return "";
-            default:
-                cout << "Neteisingas pasirinkimas. Pasirinkite nuo 0 iki 5.\n";
-         }
-    }    
-}
-void skaiciavimas( studentas& B)
-{
-    if (B.paz.empty()){
-        B.vid_rez = 0.6 * B.exam;
-        B.med_rez = 0.6 * B.exam;
-        return;
+        cout << "Neteisingas pasirinkimas.\n";
+        return 1;
     }
-    vector <int> surikiuoti_paz = B.paz;
-    std::sort(surikiuoti_paz.begin(), surikiuoti_paz.end());
-    double mediana;
-    int dydis = surikiuoti_paz.size();
-    if (dydis%2==0)
-        mediana=(surikiuoti_paz[dydis/2-1] + surikiuoti_paz[dydis/2]) / 2.0;
-    else
-        mediana=surikiuoti_paz[dydis/2];
-
-    B.vid_rez=0.4*std::accumulate(B.paz.begin(), B.paz.end(), 0.0)/B.paz.size() + 0.6*B.exam;
-    B.med_rez = 0.4*mediana + 0.6*B.exam;
-}
-bool lygintiPagalVarda(const studentas& a, const studentas& b)
-{
-    int nrA = std::stoi(a.vardas.substr(6));
-    int nrB = std::stoi(b.vardas.substr(6));
-
-    return nrA < nrB;
-}
-void printas( const studentas& A, int pasirinkimas, int w_vardas, int w_pavarde){
-    cout<<"|"<<left<<setw(w_vardas)<<A.vardas<<"|"<<left<<setw(w_pavarde)<<A.pavarde;
-    cout<<std::fixed<<std::setprecision(2);
-    if (pasirinkimas==1)
-        cout<<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.vid_rez;
+    if (pasirinkimas == 1)
+    {
+        ProgramosVeikimas<vector<studentas>>();
+    }
     else if (pasirinkimas == 2)
-        cout<<"|"<<right<<setw(10)<<std::fixed<<std::setprecision(2)<<A.med_rez;
+    {
+        ProgramosVeikimas<list<studentas>>();
+    }
     else
-         cout<<"|"<<right<<setw(10)<<A.vid_rez<<"|"<<right<<setw(10)<<A.med_rez;
-
-    cout<<"|\n";
+    {
+        cout << "Pasirinkite 1 arba 2.\n";
+        return 1;
+    }
 }
