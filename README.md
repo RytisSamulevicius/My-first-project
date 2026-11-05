@@ -211,3 +211,35 @@ Pastaba: `vector` bandymai su 1 mln. ir 10 mln. studentų neatlikti, nes antroji
 - Tyrimas parodė, kad ne tik konteinerio pasirinkimas, bet ir jo elementų apdorojimo būdas turi didelę įtaką programos veikimo spartai.
 
 **Bendra išvada:** iš trijų tirtų strategijų trečioji yra efektyviausia pagal atliktų bandymų rezultatus.
+
+## Programos įdiegimas ir paleidimas
+
+### Reikalavimai
+- Įdiegtas C++ kompiliatorius (pvz., GCC arba Clang).
+- Įdiegtas CMake.
+
+### Kompiliavimas
+
+1. Atsisiųsti projekto repozitoriją.
+2. Atidaryti terminalą projekto aplanke.
+3. Sukurti kompiliavimo aplanką ir sukonfigūruoti projektą:
+
+```bash
+cmake -S . -B build
+```
+
+4. Sukompiliuoti programą:
+
+```bash
+cmake --build build
+```
+
+### Programos paleidimas
+
+macOS arba Linux sistemose:
+
+```bash
+./build/programa
+```
+
+Windows sistemoje vykdomojo failo vieta priklauso nuo naudojamo generatoriaus ir kompiliavimo aplinkos.
