@@ -7,6 +7,7 @@
 #include <sstream>
 #include <chrono>
 #include <utility>
+#include <iterator>
 
 using std::string;
 using std::vector;

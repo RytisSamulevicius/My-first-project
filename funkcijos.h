@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <utility>
 
 using std::string;
 using std::vector;
