@@ -329,7 +329,6 @@ else if (meniu == 4)
         sk_rasymas_vargsiukai += std::chrono::duration<double>(t5 - t4).count();
         sk_rasymas_kietiakai += std::chrono::duration<double>(t6 - t5).count();
         sk_bendras_laikas += std::chrono::duration<double>(t6 - t1).count();
-        kiekis = studentai.size();
 
         atlikta_bandymai++;
         }
