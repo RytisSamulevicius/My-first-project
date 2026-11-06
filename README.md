@@ -212,7 +212,7 @@ Pastaba: `vector` bandymai su 1 mln. ir 10 mln. studentų neatlikti, nes antroji
 
 **Bendra išvada:** iš trijų tirtų strategijų trečioji yra efektyviausia pagal atliktų bandymų rezultatus.
 
-## Programos įdiegimas ir paleidimas
+## Programos įdiegimas ir paleidimas, naudojant VS
 
 ### Reikalavimai
 - Įdiegtas C++ kompiliatorius (pvz., GCC arba Clang).
@@ -243,3 +243,23 @@ macOS arba Linux sistemose:
 ```
 
 Windows sistemoje vykdomojo failo vieta priklauso nuo naudojamo generatoriaus ir kompiliavimo aplinkos.
+
+## Programos kompiliavimas ir paleidimas per terminal
+
+Programai kompiliuoti naudojamas CMake ir C++ kompiliatorius. Kompiliavimas atliekamas Release režimu, kuris leidžia optimizuoti programos veikimą.
+
+Terminale, atsidarius projekto aplanką, vykdomos komandos:
+
+```bash
+cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
+
+cmake --build build-release
+```
+
+Programa paleidžiama komanda:
+
+```bash
+./build-release/programa
+```
+
+Paleidus programą galima pasirinkti `vector` arba `list` konteinerį, duomenų įvedimo būdą ir studentų skirstymo strategiją. Taip pat galima atlikti automatinį strategijų greičio testavimą.
